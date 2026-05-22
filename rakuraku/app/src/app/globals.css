@@ -1,6 +1,11 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
+  /* === らくらく受発注システム デザイントークン === */
+  /* メインカラー (mockups/home.html :root と一致) */
   --primary: #1d4ed8;
   --primary-hover: #1e40af;
   --primary-light: #dbeafe;
@@ -28,6 +33,26 @@
 
   --font-sans: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
     "Hiragino Sans", "BIZ UDPGothic", Meiryo, sans-serif;
+
+  /* === shadcn/ui 互換トークン === */
+  --background: var(--bg-surface);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface);
+  --popover-foreground: var(--text-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--bg-muted);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-muted);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--primary-lighter);
+  --accent-foreground: var(--primary);
+  --destructive: var(--danger);
+  --border: var(--border-light);
+  --input: var(--border-default);
+  --ring: var(--primary);
+  --radius: 0.625rem;
 }
 
 @theme inline {
@@ -35,6 +60,7 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-light: var(--primary-light);
   --color-primary-lighter: var(--primary-lighter);
+  --color-primary-foreground: var(--primary-foreground);
 
   --color-bg-base: var(--bg-base);
   --color-bg-surface: var(--bg-surface);
@@ -56,7 +82,30 @@
   --color-info: var(--info);
   --color-info-light: var(--info-light);
 
+  /* shadcn/ui 互換 */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
   --font-sans: var(--font-sans);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 * {
@@ -83,4 +132,10 @@ button {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
 }
