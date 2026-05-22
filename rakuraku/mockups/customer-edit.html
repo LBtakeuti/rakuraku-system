@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>お客様の情報を入力 | らくらく受発注システム</title>
+<style>
+:root {
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --primary-light: #dbeafe;
+  --primary-lighter: #eff6ff;
+  --bg-base: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-muted: #f1f5f9;
+  --border-light: #e2e8f0;
+  --border-default: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --success: #059669;
+  --success-light: #d1fae5;
+  --info: #0284c7;
+  --info-light: #e0f2fe;
+  --purple: #7e22ce;
+  --purple-light: #f3e8ff;
+  --danger: #dc2626;
+  --danger-light: #fee2e2;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'BIZ UDPGothic', Meiryo, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--text-primary);
+  background: var(--bg-base);
+  line-height: 1.5;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select, textarea { font-family: inherit; font-size: inherit; }
+a { color: inherit; text-decoration: none; }
+
+.top-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 14px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 16px;
+}
+.brand-name { font-size: 18px; font-weight: 700; }
+.user-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px; background: var(--bg-muted); border-radius: 40px;
+}
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--primary-light); color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px;
+}
+.user-name { font-size: 14px; font-weight: 600; }
+
+.page-bar {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 32px;
+  display: flex; align-items: center; gap: 20px;
+}
+.back-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px; font-weight: 600; color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  transition: all 0.15s;
+}
+.back-btn:hover {
+  background: var(--primary-lighter);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.back-btn svg { width: 18px; height: 18px; }
+.page-title { font-size: 22px; font-weight: 700; }
+
+.content { max-width: 880px; margin: 0 auto; padding: 32px; }
+
+/* ステップインジケーター */
+.steps-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+  padding: 20px;
+  background: var(--bg-surface);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+.step-item {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; flex: 1; max-width: 200px;
+}
+.step-circle {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--bg-muted);
+  color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 18px;
+  border: 2px solid var(--border-light);
+  transition: all 0.2s;
+}
+.step-item.active .step-circle {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-lighter);
+}
+.step-item.done .step-circle {
+  background: var(--success);
+  color: white;
+  border-color: var(--success);
+}
+.step-item.done .step-circle .step-num { display: none; }
+.step-item.done .step-circle::after { content: '✓'; font-size: 22px; }
+.step-label {
+  font-size: 14px; font-weight: 600;
+  color: var(--text-muted); text-align: center;
+}
+.step-item.active .step-label { color: var(--primary); }
+.step-item.done .step-label { color: var(--success); }
+.step-line {
+  flex: 0 0 60px; height: 2px;
+  background: var(--border-light);
+  margin-top: 22px;
+}
+.step-line.done { background: var(--success); }
+
+/* フォームカード */
+.form-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+.form-section-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.form-section-desc {
+  font-size: 14px; color: var(--text-secondary);
+  margin-bottom: 28px; line-height: 1.7;
+}
+
+.field-group { margin-bottom: 24px; }
+.field-label { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.field-label-text { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+.field-required {
+  font-size: 11px; font-weight: 700;
+  background: var(--danger-light); color: var(--danger);
+  padding: 2px 7px; border-radius: 4px;
+}
+.field-optional {
+  font-size: 11px; font-weight: 600;
+  background: var(--bg-muted); color: var(--text-muted);
+  padding: 2px 7px; border-radius: 4px;
+}
+.field-help { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+
+.field-input, .field-select, .field-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px;
+  background: var(--bg-surface);
+  outline: none;
+  transition: all 0.15s;
+}
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-lighter);
+}
+.field-input::placeholder { color: var(--text-muted); }
+.field-textarea { resize: vertical; min-height: 80px; }
+
+.field-row { display: flex; gap: 16px; align-items: flex-end; }
+.field-row .field-group { flex: 1; margin-bottom: 0; }
+.field-row .w-sm { flex: 0 0 180px; }
+.field-row .w-md { flex: 0 0 280px; }
+
+/* ランク選択 */
+.rank-group { display: flex; gap: 10px; flex-wrap: wrap; }
+.rank-option {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px;
+  padding: 14px 24px;
+  border: 2px solid var(--border-light);
+  border-radius: 12px;
+  background: var(--bg-surface);
+  cursor: pointer;
+  min-width: 90px;
+  transition: all 0.15s;
+}
+.rank-option:hover { border-color: var(--primary); background: var(--primary-lighter); }
+.rank-option.selected {
+  border-color: var(--primary);
+  background: var(--primary-lighter);
+  box-shadow: 0 0 0 3px var(--primary-lighter);
+}
+.rank-option-letter { font-size: 24px; font-weight: 800; color: var(--text-primary); }
+.rank-option-desc { font-size: 12px; color: var(--text-secondary); }
+.rank-option.selected .rank-option-letter { color: var(--primary); }
+
+/* ラジオボタン */
+.radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
+.radio-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px;
+  border: 2px solid var(--border-light);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 15px; font-weight: 600;
+}
+.radio-option:hover { border-color: var(--primary); }
+.radio-option.selected {
+  border-color: var(--primary);
+  background: var(--primary-lighter);
+  color: var(--primary);
+}
+.radio-circle {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-default);
+  flex-shrink: 0; position: relative;
+}
+.radio-option.selected .radio-circle { border-color: var(--primary); }
+.radio-option.selected .radio-circle::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+/* 帳票タイプの大きな選択カード */
+.format-cards { display: flex; gap: 16px; flex-wrap: wrap; }
+.format-card {
+  flex: 1; min-width: 240px;
+  border: 2px solid var(--border-light);
+  border-radius: 14px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--bg-surface);
+}
+.format-card:hover { border-color: var(--primary); }
+.format-card.selected {
+  border-color: var(--primary);
+  background: var(--primary-lighter);
+  box-shadow: 0 0 0 3px var(--primary-lighter);
+}
+.format-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.format-card-radio {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border-default);
+  flex-shrink: 0; position: relative;
+}
+.format-card.selected .format-card-radio { border-color: var(--primary); }
+.format-card.selected .format-card-radio::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+.format-card-title { font-size: 16px; font-weight: 700; }
+.format-card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.format-card-preview {
+  margin-top: 12px;
+  display: flex; gap: 6px;
+}
+.preview-page {
+  flex: 1;
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  background: var(--bg-surface);
+  padding: 6px;
+  font-size: 8px;
+  color: var(--text-muted);
+}
+.preview-page-label {
+  font-size: 9px; font-weight: 700;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: 4px;
+}
+.preview-line {
+  height: 2px;
+  background: var(--border-light);
+  border-radius: 1px;
+  margin-bottom: 3px;
+}
+.preview-line.short { width: 60%; }
+
+/* 情報ボックス */
+.info-box {
+  display: flex; gap: 12px;
+  padding: 16px;
+  background: var(--info-light);
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+.info-box svg { width: 20px; height: 20px; color: var(--info); flex-shrink: 0; margin-top: 1px; }
+.info-box-text { font-size: 13px; color: #075985; line-height: 1.6; }
+
+/* 下部ボタン */
+.form-footer {
+  display: flex; justify-content: space-between; gap: 16px;
+  padding-top: 16px;
+}
+.btn-large {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 16px; font-weight: 700;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+  transition: all 0.15s;
+}
+.btn-large svg { width: 20px; height: 20px; }
+.btn-large.primary { background: var(--primary); color: white; }
+.btn-large.primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+}
+.btn-large.success { background: var(--success); color: white; }
+.btn-large.success:hover {
+  background: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+}
+.btn-large.default {
+  background: var(--bg-surface);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+.btn-large.default:hover { background: var(--bg-muted); transform: translateY(-1px); }
+
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="brand">
+    <div class="brand-logo">楽</div>
+    <div class="brand-name">らくらく受発注システム</div>
+  </div>
+  <div class="user-chip">
+    <div class="user-avatar">山</div>
+    <div class="user-name">山田 太郎 さん</div>
+  </div>
+</header>
+
+<div class="page-bar">
+  <a href="customers.html" class="back-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+    </svg>
+    お客様一覧に戻る
+  </a>
+  <div class="page-title">新しいお客様を追加する</div>
+</div>
+
+<main class="content">
+
+  <div class="steps-bar">
+    <div class="step-item active" data-step="1">
+      <div class="step-circle"><span class="step-num">1</span></div>
+      <div class="step-label">基本情報</div>
+    </div>
+    <div class="step-line" data-line="1"></div>
+    <div class="step-item" data-step="2">
+      <div class="step-circle"><span class="step-num">2</span></div>
+      <div class="step-label">連絡先</div>
+    </div>
+    <div class="step-line" data-line="2"></div>
+    <div class="step-item" data-step="3">
+      <div class="step-circle"><span class="step-num">3</span></div>
+      <div class="step-label">請求の設定</div>
+    </div>
+  </div>
+
+  <!-- ========== ステップ1: 基本情報 ========== -->
+  <div class="step-panel active" data-panel="1">
+    <div class="form-card">
+      <div class="form-section-title">まずはお客様の名前を教えてください</div>
+      <div class="form-section-desc">
+        入力する項目は3画面に分かれています。<br>
+        <strong style="color: var(--danger)">赤い印</strong>がついている項目は必ず入力してください。
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">お客様の名前</span>
+          <span class="field-required">必須</span>
+        </div>
+        <div class="field-help">会社名や店舗名を入力してください。例: 株式会社サンプル</div>
+        <input type="text" class="field-input" placeholder="株式会社サンプル">
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">フリガナ</span>
+          <span class="field-optional">任意</span>
+        </div>
+        <div class="field-help">カタカナで入力してください。検索のときに使えます。</div>
+        <input type="text" class="field-input" placeholder="カブシキガイシャサンプル">
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">お客様コード</span>
+          <span class="field-optional">空欄でOK</span>
+        </div>
+        <div class="field-help">空欄のままにすると、自動でコードが付けられます。</div>
+        <input type="text" class="field-input" placeholder="自動で付けられます" style="max-width: 280px">
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">お客様のランク</span>
+          <span class="field-required">必須</span>
+        </div>
+        <div class="field-help">取引の重要度に応じて選んでください。あとから変更できます。</div>
+        <div class="rank-group">
+          <div class="rank-option">
+            <div class="rank-option-letter">A</div>
+            <div class="rank-option-desc">特に大切</div>
+          </div>
+          <div class="rank-option">
+            <div class="rank-option-letter">B</div>
+            <div class="rank-option-desc">大切</div>
+          </div>
+          <div class="rank-option selected">
+            <div class="rank-option-letter">C</div>
+            <div class="rank-option-desc">標準</div>
+          </div>
+          <div class="rank-option">
+            <div class="rank-option-letter">D</div>
+            <div class="rank-option-desc">小規模</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">担当者</span>
+          <span class="field-required">必須</span>
+        </div>
+        <div class="field-help">このお客様の担当をする社員を選んでください。</div>
+        <select class="field-select" style="max-width: 320px">
+          <option>選択してください</option>
+          <option selected>山田 太郎</option>
+          <option>出口 飛鳥</option>
+          <option>佐藤 花子</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">取引の状態</span>
+          <span class="field-required">必須</span>
+        </div>
+        <div class="field-help">普通は「取引中」を選んでください。</div>
+        <div class="radio-group">
+          <div class="radio-option selected">
+            <div class="radio-circle"></div>
+            <span>取引中</span>
+          </div>
+          <div class="radio-option">
+            <div class="radio-circle"></div>
+            <span>休止中</span>
+          </div>
+          <div class="radio-option">
+            <div class="radio-circle"></div>
+            <span>取引なし</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <a href="customers.html" class="btn-large default">キャンセル</a>
+      <button class="btn-large primary" onclick="goStep(2)">
+        次へ進む(連絡先の入力)
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/><polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== ステップ2: 連絡先 ========== -->
+  <div class="step-panel" data-panel="2">
+    <div class="form-card">
+      <div class="form-section-title">お客様の連絡先を入力してください</div>
+      <div class="form-section-desc">
+        住所は請求書や発注書にそのまま印刷されます。正確に入力してください。
+      </div>
+
+      <div class="field-row">
+        <div class="field-group w-sm">
+          <div class="field-label">
+            <span class="field-label-text">郵便番号</span>
+            <span class="field-optional">任意</span>
+          </div>
+          <div class="field-help">ハイフンあり</div>
+          <input type="text" class="field-input" placeholder="123-4567">
+        </div>
+        <div class="field-group">
+          <div class="field-label">
+            <span class="field-label-text">住所</span>
+            <span class="field-required">必須</span>
+          </div>
+          <div class="field-help">都道府県から入力してください。</div>
+          <input type="text" class="field-input" placeholder="東京都〇〇区〇〇 1-2-3">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">建物名・部屋番号など</span>
+          <span class="field-optional">任意</span>
+        </div>
+        <input type="text" class="field-input" placeholder="〇〇ビル 4階">
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <div class="field-label">
+            <span class="field-label-text">電話番号</span>
+            <span class="field-required">必須</span>
+          </div>
+          <div class="field-help">注文の確認に使います。</div>
+          <input type="text" class="field-input" placeholder="03-1234-5678">
+        </div>
+        <div class="field-group">
+          <div class="field-label">
+            <span class="field-label-text">FAX番号</span>
+            <span class="field-optional">任意</span>
+          </div>
+          <div class="field-help">発注書のFAX送信に使います。</div>
+          <input type="text" class="field-input" placeholder="03-1234-5679">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">担当の方のお名前</span>
+          <span class="field-optional">任意</span>
+        </div>
+        <div class="field-help">お客様側の窓口になる方の名前です。</div>
+        <input type="text" class="field-input" placeholder="例: 鈴木 一郎" style="max-width: 320px">
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">メールアドレス</span>
+          <span class="field-optional">任意</span>
+        </div>
+        <input type="text" class="field-input" placeholder="example@sample.co.jp">
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">届け先について</span>
+          <span class="field-optional">任意</span>
+        </div>
+        <div class="field-help">
+          上の住所と違う場所に届ける場合は、ここにメモできます。<br>
+          届け先が複数ある場合は、お客様の登録後に「届け先の管理」から追加できます。
+        </div>
+        <textarea class="field-textarea" placeholder="例: 商品は平塚配送センターに届けてください"></textarea>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <button class="btn-large default" onclick="goStep(1)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        前に戻る
+      </button>
+      <button class="btn-large primary" onclick="goStep(3)">
+        次へ進む(請求の設定)
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/><polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========== ステップ3: 請求の設定 ========== -->
+  <div class="step-panel" data-panel="3">
+    <div class="form-card">
+      <div class="form-section-title">請求書の出し方を決めてください</div>
+      <div class="form-section-desc">
+        ここで決めた内容にそって、毎月の請求書が自動で作られます。<br>
+        お客様によって請求書の形式や締め日が違うので、間違えないように選んでください。
+      </div>
+
+      <div class="info-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+        </svg>
+        <div class="info-box-text">
+          ここで設定した「請求書の種類」によって、請求業務の画面で発行される帳票が自動で切り替わります。
+          設定はあとから変更できます。
+        </div>
+      </div>
+
+      <!-- 帳票タイプ -->
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">請求書の種類</span>
+          <span class="field-required">必須</span>
+        </div>
+        <div class="field-help">このお客様にどの形式の請求書を送るか選んでください。</div>
+        <div class="format-cards">
+          <div class="format-card selected" data-format="invoice_only">
+            <div class="format-card-head">
+              <div class="format-card-radio"></div>
+              <div class="format-card-title">請求書のみ</div>
+            </div>
+            <div class="format-card-desc">
+              請求書を1枚だけ発行します。納品の明細は請求書の中に載ります。
+            </div>
+            <div class="format-card-preview">
+              <div class="preview-page">
+                <div class="preview-page-label">請求書</div>
+                <div class="preview-line"></div>
+                <div class="preview-line"></div>
+                <div class="preview-line short"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="format-card" data-format="invoice_delivery">
+            <div class="format-card-head">
+              <div class="format-card-radio"></div>
+              <div class="format-card-title">請求書＋納品書</div>
+            </div>
+            <div class="format-card-desc">
+              1枚の用紙に請求書と納品書を上下に印刷します。納品書も必要なお客様向け。
+            </div>
+            <div class="format-card-preview">
+              <div class="preview-page">
+                <div class="preview-page-label">請求書</div>
+                <div class="preview-line"></div>
+                <div class="preview-line short"></div>
+              </div>
+              <div class="preview-page">
+                <div class="preview-page-label">納品書</div>
+                <div class="preview-line"></div>
+                <div class="preview-line short"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 締め日 -->
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">締め日</span>
+          <span class="field-required">必須</span>
+        </div>
+        <div class="field-help">
+          毎月いつまでの売上を1回分の請求にまとめるかを決めます。<br>
+          例:「20日締め」なら、前月21日〜当月20日の売上が1枚の請求書になります。
+        </div>
+        <select class="field-select" style="max-width: 320px">
+          <option>末日締め(月末で締める)</option>
+          <option selected>20日締め</option>
+          <option>25日締め</option>
+          <option>15日締め</option>
+          <option>10日締め</option>
+          <option>5日締め</option>
+        </select>
+      </div>
+
+      <!-- 入金予定 -->
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">お支払い予定</span>
+          <span class="field-optional">任意</span>
+        </div>
+        <div class="field-help">請求書を出してから、いつ入金される予定かを選びます。</div>
+        <select class="field-select" style="max-width: 320px">
+          <option>翌月末</option>
+          <option selected>翌月20日</option>
+          <option>翌月10日</option>
+          <option>翌々月末</option>
+        </select>
+      </div>
+
+      <!-- 税計算区分 -->
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">消費税の計算方法</span>
+          <span class="field-required">必須</span>
+        </div>
+        <div class="field-help">
+          消費税をどのタイミングで計算するかです。わからない場合は「明細ごと」を選んでください。
+        </div>
+        <div class="radio-group">
+          <div class="radio-option selected">
+            <div class="radio-circle"></div>
+            <span>明細ごとに計算</span>
+          </div>
+          <div class="radio-option">
+            <div class="radio-circle"></div>
+            <span>伝票ごとに計算</span>
+          </div>
+          <div class="radio-option">
+            <div class="radio-circle"></div>
+            <span>請求書ごとに計算</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 端数処理 -->
+      <div class="field-group">
+        <div class="field-label">
+          <span class="field-label-text">消費税の端数</span>
+          <span class="field-required">必須</span>
+        </div>
+        <div class="field-help">消費税で1円未満が出たときの扱いです。</div>
+        <div class="radio-group">
+          <div class="radio-option selected">
+            <div class="radio-circle"></div>
+            <span>切り捨て</span>
+          </div>
+          <div class="radio-option">
+            <div class="radio-circle"></div>
+            <span>四捨五入</span>
+          </div>
+          <div class="radio-option">
+            <div class="radio-circle"></div>
+            <span>切り上げ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <button class="btn-large default" onclick="goStep(2)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        前に戻る
+      </button>
+      <button class="btn-large success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        この内容でお客様を登録する
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // ステップ移動
+  function goStep(n) {
+    document.querySelectorAll('.step-panel').forEach(p => {
+      p.classList.toggle('active', Number(p.dataset.panel) === n);
+    });
+    document.querySelectorAll('.step-item').forEach(s => {
+      const sn = Number(s.dataset.step);
+      s.classList.toggle('active', sn === n);
+      s.classList.toggle('done', sn < n);
+    });
+    document.querySelectorAll('.step-line').forEach(l => {
+      l.classList.toggle('done', Number(l.dataset.line) < n);
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ランク選択
+  document.querySelectorAll('.rank-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.rank-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+  });
+
+  // ラジオ選択(グループ内で排他)
+  document.querySelectorAll('.radio-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      opt.parentElement.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+  });
+
+  // 帳票タイプ選択
+  document.querySelectorAll('.format-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.format-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+    });
+  });
+</script>
+
+</body>
+</html>

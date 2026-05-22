@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>納品する | らくらく受発注システム</title>
+<style>
+:root {
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --primary-light: #dbeafe;
+  --primary-lighter: #eff6ff;
+  --bg-base: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-muted: #f1f5f9;
+  --border-light: #e2e8f0;
+  --border-default: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --success: #059669;
+  --success-light: #d1fae5;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
+  --danger: #dc2626;
+  --danger-light: #fee2e2;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'BIZ UDPGothic', Meiryo, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--text-primary);
+  background: var(--bg-base);
+  line-height: 1.5;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select { font-family: inherit; font-size: inherit; }
+a { color: inherit; text-decoration: none; }
+
+.top-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+}
+.brand-name { font-size: 18px; font-weight: 700; }
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: var(--bg-muted);
+  border-radius: 40px;
+}
+.user-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+.user-name { font-size: 14px; font-weight: 600; }
+
+.page-bar {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.home-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+.home-btn:hover {
+  background: var(--primary-lighter);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.home-btn svg { width: 18px; height: 18px; }
+.page-title { font-size: 22px; font-weight: 700; }
+
+.content { max-width: 1280px; margin: 0 auto; padding: 32px; }
+
+.intro-card {
+  background: var(--success-light);
+  border: 1px solid #6ee7b7;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.intro-icon {
+  width: 48px; height: 48px;
+  background: var(--success);
+  color: white;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.intro-icon svg { width: 28px; height: 28px; }
+.intro-text { flex: 1; }
+.intro-title { font-size: 17px; font-weight: 700; color: var(--success); margin-bottom: 4px; }
+.intro-desc { font-size: 14px; color: #065f46; line-height: 1.6; }
+
+.search-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+.search-row { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
+.search-input-wrap { flex: 1; min-width: 280px; position: relative; }
+.search-input-wrap svg {
+  position: absolute;
+  left: 14px; top: 50%;
+  transform: translateY(-50%);
+  width: 18px; height: 18px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+}
+.search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-lighter); }
+
+.filter-chip-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+.chip-label { font-size: 13px; color: var(--text-muted); margin-right: 4px; }
+.chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--bg-muted);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.chip:hover { background: var(--primary-lighter); color: var(--primary); }
+.chip.active { background: var(--primary); color: white; }
+
+.list-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+.list-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.result-count { font-size: 14px; color: var(--text-secondary); }
+.result-count strong { color: var(--text-primary); font-size: 16px; }
+
+/* 注文カード */
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.1s;
+}
+.order-item:last-child { border-bottom: none; }
+.order-item:hover { background: var(--primary-lighter); }
+
+.order-checkbox {
+  width: 28px; height: 28px;
+  border: 2px solid var(--border-default);
+  border-radius: 8px;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+}
+.order-checkbox.checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.order-checkbox.checked::after {
+  content: '✓';
+  color: white;
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.order-info { flex: 1; min-width: 0; }
+.order-info-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.order-no {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.order-customer { font-size: 17px; font-weight: 700; }
+
+.order-info-bottom {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.order-info-bottom span { display: inline-flex; align-items: center; gap: 4px; }
+
+.order-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.order-actions {
+  display: flex;
+  gap: 8px;
+}
+.order-btn {
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+.order-btn:hover { background: var(--bg-muted); color: var(--text-primary); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-warning { background: var(--warning-light); color: var(--warning); }
+.badge-urgent { background: var(--danger-light); color: var(--danger); }
+
+/* 一括処理バー */
+.batch-bar {
+  position: sticky;
+  bottom: 24px;
+  margin: 24px auto 0;
+  max-width: 800px;
+  background: var(--text-primary);
+  color: white;
+  border-radius: 14px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+}
+.batch-info { font-size: 15px; font-weight: 600; }
+.batch-info strong { font-size: 18px; color: #93c5fd; }
+.batch-actions { display: flex; gap: 12px; }
+.batch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.batch-btn svg { width: 18px; height: 18px; }
+.batch-btn.primary { background: var(--success); color: white; }
+.batch-btn.primary:hover { background: #047857; }
+.batch-btn.cancel { background: transparent; color: white; border: 1px solid #475569; }
+.batch-btn.cancel:hover { background: #1e293b; }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="brand">
+    <div class="brand-logo">楽</div>
+    <div class="brand-name">らくらく受発注システム</div>
+  </div>
+  <div class="user-chip">
+    <div class="user-avatar">山</div>
+    <div class="user-name">山田 太郎 さん</div>
+  </div>
+</header>
+
+<div class="page-bar">
+  <a href="home.html" class="home-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+    </svg>
+    ホームに戻る
+  </a>
+  <div class="page-title">納品する</div>
+</div>
+
+<main class="content">
+
+  <div class="intro-card">
+    <div class="intro-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+      </svg>
+    </div>
+    <div class="intro-text">
+      <div class="intro-title">納品する注文を選んでください</div>
+      <div class="intro-desc">
+        納品が完了した注文にチェックをつけて、下の「納品を確定する」ボタンを押してください。<br>
+        納品を確定すると、自動で売上として記録され、納品書が作られます。
+      </div>
+    </div>
+  </div>
+
+  <div class="search-card">
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" class="search-input" placeholder="伝票番号、お客様名で検索...">
+      </div>
+    </div>
+    <div class="filter-chip-row">
+      <span class="chip-label">納品予定日:</span>
+      <button class="chip">今日まで</button>
+      <button class="chip active">今週まで</button>
+      <button class="chip">すべて</button>
+    </div>
+  </div>
+
+  <div class="list-card">
+    <div class="list-header">
+      <div class="result-count">納品待ちの注文 <strong>5</strong> 件</div>
+    </div>
+
+    <div class="order-item">
+      <div class="order-checkbox checked"></div>
+      <div class="order-info">
+        <div class="order-info-top">
+          <span class="order-no">#800028791</span>
+          <span class="badge badge-urgent">本日が納品日</span>
+        </div>
+        <div class="order-customer">㈱ニューライフカネタ 米沢金池店</div>
+        <div class="order-info-bottom">
+          <span>📅 納品予定: 2026/04/24(本日)</span>
+          <span>📦 商品 2品目</span>
+        </div>
+      </div>
+      <div class="order-amount">¥9,636</div>
+      <div class="order-actions">
+        <button class="order-btn">詳細</button>
+      </div>
+    </div>
+
+    <div class="order-item">
+      <div class="order-checkbox checked"></div>
+      <div class="order-info">
+        <div class="order-info-top">
+          <span class="order-no">#800028790</span>
+          <span class="badge badge-urgent">本日が納品日</span>
+        </div>
+        <div class="order-customer">株式会社タカヨシ</div>
+        <div class="order-info-bottom">
+          <span>📅 納品予定: 2026/04/24(本日)</span>
+          <span>📦 商品 1品目</span>
+        </div>
+      </div>
+      <div class="order-amount">¥144,144</div>
+      <div class="order-actions">
+        <button class="order-btn">詳細</button>
+      </div>
+    </div>
+
+    <div class="order-item">
+      <div class="order-checkbox"></div>
+      <div class="order-info">
+        <div class="order-info-top">
+          <span class="order-no">#800028787</span>
+          <span class="badge badge-warning">明日が納品日</span>
+        </div>
+        <div class="order-customer">株式会社サンプル商会</div>
+        <div class="order-info-bottom">
+          <span>📅 納品予定: 2026/04/25(明日)</span>
+          <span>📦 商品 5品目</span>
+        </div>
+      </div>
+      <div class="order-amount">¥56,200</div>
+      <div class="order-actions">
+        <button class="order-btn">詳細</button>
+      </div>
+    </div>
+
+    <div class="order-item">
+      <div class="order-checkbox"></div>
+      <div class="order-info">
+        <div class="order-info-top">
+          <span class="order-no">#800028789</span>
+        </div>
+        <div class="order-customer">㈲矢倉商事</div>
+        <div class="order-info-bottom">
+          <span>📅 納品予定: 2026/04/27</span>
+          <span>📦 商品 3品目</span>
+        </div>
+      </div>
+      <div class="order-amount">¥25,300</div>
+      <div class="order-actions">
+        <button class="order-btn">詳細</button>
+      </div>
+    </div>
+
+    <div class="order-item">
+      <div class="order-checkbox"></div>
+      <div class="order-info">
+        <div class="order-info-top">
+          <span class="order-no">#800028785</span>
+        </div>
+        <div class="order-customer">大和商店 本店</div>
+        <div class="order-info-bottom">
+          <span>📅 納品予定: 2026/04/28</span>
+          <span>📦 商品 2品目</span>
+        </div>
+      </div>
+      <div class="order-amount">¥18,900</div>
+      <div class="order-actions">
+        <button class="order-btn">詳細</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="batch-bar">
+    <div class="batch-info"><strong>2件</strong>の注文を納品します(合計 ¥153,780)</div>
+    <div class="batch-actions">
+      <button class="batch-btn cancel">選択を解除</button>
+      <button class="batch-btn primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        納品を確定する
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  document.querySelectorAll('.order-checkbox').forEach(cb => {
+    cb.addEventListener('click', (e) => {
+      e.stopPropagation();
+      cb.classList.toggle('checked');
+    });
+  });
+</script>
+
+</body>
+</html>

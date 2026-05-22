@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>注文を受ける | らくらく受発注システム</title>
+<style>
+:root {
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --primary-light: #dbeafe;
+  --primary-lighter: #eff6ff;
+  --bg-base: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-muted: #f1f5f9;
+  --border-light: #e2e8f0;
+  --border-default: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --success: #059669;
+  --success-light: #d1fae5;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
+  --danger: #dc2626;
+  --danger-light: #fee2e2;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'BIZ UDPGothic', Meiryo, sans-serif;
+
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-soft: 280ms;
+  --duration-quick: 180ms;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--text-primary);
+  background: var(--bg-base);
+  line-height: 1.5;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select { font-family: inherit; font-size: inherit; }
+a { color: inherit; text-decoration: none; }
+
+.top-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 14px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 16px;
+}
+.brand-name { font-size: 18px; font-weight: 700; }
+.user-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px; background: var(--bg-muted); border-radius: 40px;
+}
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--primary-light); color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px;
+}
+.user-name { font-size: 14px; font-weight: 600; }
+
+.page-bar {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 32px;
+  display: flex; align-items: center; gap: 20px;
+}
+.home-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px; font-weight: 600; color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  transition: all var(--duration-soft) var(--ease-soft);
+}
+.home-btn:hover {
+  background: var(--primary-lighter);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.home-btn svg { width: 18px; height: 18px; }
+.page-title { font-size: 22px; font-weight: 700; }
+
+.content { max-width: 1280px; margin: 0 auto; padding: 24px 32px; }
+
+.section-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+.section-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center; gap: 12px;
+}
+.section-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+}
+.section-title { font-size: 17px; font-weight: 700; }
+.section-body { padding: 24px; }
+
+.selected-customer {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 20px;
+  background: var(--primary-lighter);
+  border: 2px solid var(--primary);
+  border-radius: 12px;
+}
+.customer-avatar {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  background: var(--primary); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 18px; flex-shrink: 0;
+}
+.customer-info { flex: 1; min-width: 0; }
+.customer-name { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+.customer-detail {
+  display: flex; gap: 16px;
+  font-size: 13px; color: var(--text-secondary);
+}
+.change-customer {
+  padding: 8px 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  font-size: 13px; font-weight: 600; color: var(--text-secondary);
+  transition: background var(--duration-quick) var(--ease-soft);
+}
+.change-customer:hover { background: var(--bg-muted); }
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.info-field-label {
+  font-size: 14px; font-weight: 600;
+  color: var(--text-secondary); margin-bottom: 6px;
+}
+.info-field-input, .info-field-select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--bg-surface);
+  outline: none;
+  transition: all var(--duration-quick) var(--ease-soft);
+}
+.info-field-input:focus, .info-field-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-lighter);
+}
+
+/* ===== 明細テーブル(物理化) ===== */
+.items-section { padding: 0; }
+
+.items-hint {
+  padding: 12px 24px;
+  background: var(--primary-lighter);
+  border-bottom: 1px solid var(--border-light);
+  font-size: 13px;
+  color: var(--primary);
+  display: flex; align-items: center; gap: 20px;
+  flex-wrap: wrap;
+}
+.kbd-hint { display: inline-flex; align-items: center; gap: 6px; }
+.kbd {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  font-size: 11px; font-weight: 700;
+  font-family: ui-monospace, monospace;
+  color: var(--text-secondary);
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.items-table thead th {
+  text-align: left;
+  padding: 12px 14px;
+  font-size: 13px; font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-muted);
+  border-bottom: 1px solid var(--border-light);
+}
+.items-table th.center { text-align: center; }
+.items-table th.right { text-align: right; }
+
+.col-handle { width: 44px; }
+.col-num    { width: 50px; }
+.col-qty    { width: 110px; }
+.col-price  { width: 130px; }
+.col-amount { width: 150px; }
+.col-tax    { width: 90px; }
+.col-del    { width: 56px; }
+
+.item-row {
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-surface);
+  transition:
+    transform var(--duration-soft) var(--ease-soft),
+    box-shadow var(--duration-soft) var(--ease-soft),
+    opacity var(--duration-soft) var(--ease-soft),
+    background-color var(--duration-quick) var(--ease-soft);
+}
+.item-row td { padding: 12px 14px; vertical-align: middle; }
+.item-row:hover { background: #fafbfd; }
+
+.item-row.dragging {
+  background: var(--bg-surface);
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.12),
+    0 4px 8px rgba(15, 23, 42, 0.08);
+  position: relative; z-index: 10;
+  cursor: grabbing !important;
+}
+
+.item-row.just-dropped {
+  animation: dropBounce 320ms var(--ease-spring);
+}
+@keyframes dropBounce {
+  0%   { transform: translateY(-6px); }
+  60%  { transform: translateY(2px); }
+  100% { transform: translateY(0); }
+}
+
+.item-row.removing {
+  animation: rowRemove 380ms var(--ease-soft) forwards;
+  pointer-events: none;
+}
+@keyframes rowRemove {
+  0%   { transform: translateX(0); opacity: 1; max-height: 80px; }
+  30%  { transform: translateX(20px); opacity: 0.8; }
+  100% { transform: translateX(80px); opacity: 0; max-height: 0; }
+}
+
+.item-row.entering {
+  animation: rowEnter 400ms var(--ease-soft);
+}
+@keyframes rowEnter {
+  0%   { transform: translateY(-12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.drag-handle {
+  width: 28px; height: 28px;
+  margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 6px;
+  color: var(--text-muted);
+  cursor: grab;
+  opacity: 0.4;
+  transition: all var(--duration-quick) var(--ease-soft);
+}
+.item-row:hover .drag-handle { opacity: 1; color: var(--text-secondary); }
+.drag-handle:hover { background: var(--primary-lighter); color: var(--primary); }
+.drag-handle:active { cursor: grabbing; }
+.drag-handle svg { width: 14px; height: 14px; }
+
+.row-num {
+  width: 32px; height: 32px;
+  background: var(--bg-muted);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px;
+}
+
+.product-cell-wrap { position: relative; }
+.product-cell-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 14px;
+  background: transparent;
+  outline: none;
+  transition: all var(--duration-quick) var(--ease-soft);
+  font-weight: 600;
+}
+.product-cell-input:hover { background: var(--bg-muted); }
+.product-cell-input:focus {
+  background: var(--bg-surface);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-lighter);
+}
+.product-cell-input.empty { color: var(--text-muted); font-weight: 400; }
+.product-meta {
+  font-size: 12px; color: var(--text-muted);
+  margin-top: 4px; padding-left: 14px;
+}
+
+.autocomplete-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.12),
+    0 4px 8px rgba(15, 23, 42, 0.04);
+  z-index: 20;
+  max-height: 280px;
+  overflow-y: auto;
+  display: none;
+  animation: acFadeIn 220ms var(--ease-soft);
+}
+@keyframes acFadeIn {
+  0%   { opacity: 0; transform: translateY(-6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.autocomplete-list.visible { display: block; }
+
+.ac-item {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: background var(--duration-quick) var(--ease-soft);
+  display: flex; align-items: center; gap: 12px;
+}
+.ac-item:last-child { border-bottom: none; }
+.ac-item:hover, .ac-item.highlighted { background: var(--primary-lighter); }
+.ac-item-thumb {
+  width: 32px; height: 32px;
+  background: var(--bg-muted);
+  border-radius: 6px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted);
+}
+.ac-item-thumb svg { width: 16px; height: 16px; }
+.ac-item-info { flex: 1; min-width: 0; }
+.ac-item-name {
+  font-size: 14px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ac-item-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.ac-item-price {
+  font-size: 14px; font-weight: 700; color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+.ac-empty {
+  padding: 24px; text-align: center;
+  color: var(--text-muted); font-size: 14px;
+}
+
+.qty-input, .price-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 15px; font-weight: 600;
+  text-align: right;
+  outline: none;
+  background: transparent;
+  font-variant-numeric: tabular-nums;
+  transition: all var(--duration-quick) var(--ease-soft);
+}
+.qty-input:hover, .price-input:hover { background: var(--bg-muted); }
+.qty-input:focus, .price-input:focus {
+  background: var(--bg-surface);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-lighter);
+}
+
+.amount-cell {
+  font-size: 16px; font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transition: color var(--duration-soft) var(--ease-soft);
+}
+.amount-cell.updated { animation: amountPop 480ms var(--ease-spring); }
+@keyframes amountPop {
+  0%   { transform: scale(1); color: var(--text-primary); }
+  30%  { transform: scale(1.08); color: var(--primary); }
+  100% { transform: scale(1); color: var(--text-primary); }
+}
+.amount-cell.empty { color: var(--text-muted); font-weight: 400; }
+
+.tax-select {
+  padding: 7px 28px 7px 10px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  font-size: 13px; font-weight: 600;
+  outline: none; appearance: none;
+  background: var(--bg-surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") right 8px center no-repeat;
+  transition: all var(--duration-quick) var(--ease-soft);
+}
+.tax-select:hover { background-color: var(--bg-muted); }
+
+.delete-row {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  display: inline-flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: all var(--duration-soft) var(--ease-soft);
+}
+.item-row:hover .delete-row { opacity: 0.6; }
+.delete-row:hover {
+  opacity: 1 !important;
+  background: var(--danger-light); color: var(--danger);
+  transform: scale(1.08);
+}
+.delete-row svg { width: 16px; height: 16px; }
+
+.add-row-wrap { padding: 16px 24px; }
+.add-row-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--primary-lighter);
+  border: 2px dashed #93c5fd;
+  border-radius: 10px;
+  font-size: 15px; font-weight: 700;
+  color: var(--primary);
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all var(--duration-soft) var(--ease-soft);
+}
+.add-row-btn:hover {
+  background: #c7e0ff;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.15);
+}
+.add-row-btn:active { transform: translateY(0); }
+.add-row-btn svg { width: 20px; height: 20px; }
+
+.totals-row {
+  display: flex; justify-content: flex-end;
+  padding: 20px 24px;
+  background: var(--bg-muted);
+  border-top: 1px solid var(--border-light);
+}
+.totals-box {
+  min-width: 320px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+.total-line {
+  display: flex; justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+}
+.total-line .num {
+  font-variant-numeric: tabular-nums; font-weight: 600;
+  color: var(--text-primary);
+  transition: color var(--duration-soft) var(--ease-soft);
+}
+.total-line.grand {
+  font-size: 18px; font-weight: 700;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 2px solid var(--border-light);
+  margin-bottom: 0;
+}
+.total-line.grand .num { color: var(--primary); font-size: 24px; }
+
+.form-footer {
+  display: flex; justify-content: space-between; gap: 16px;
+  position: sticky; bottom: 0;
+  background: var(--bg-base);
+  margin: 0 -32px;
+  padding: 24px 32px;
+  border-top: 1px solid var(--border-light);
+  z-index: 5;
+}
+.btn-large {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-size: 16px; font-weight: 700;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+  transition: all var(--duration-soft) var(--ease-soft);
+}
+.btn-large svg { width: 20px; height: 20px; }
+.btn-large.primary { background: var(--primary); color: white; }
+.btn-large.primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(29, 78, 216, 0.25);
+}
+.btn-large.primary:active { transform: translateY(0); }
+.btn-large.default {
+  background: var(--bg-surface);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+.btn-large.default:hover {
+  background: var(--bg-muted);
+  transform: translateY(-1px);
+}
+
+.undo-toast {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--text-primary);
+  color: white;
+  padding: 14px 20px;
+  border-radius: 12px;
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.18),
+    0 4px 8px rgba(15, 23, 42, 0.08);
+  display: flex; align-items: center; gap: 16px;
+  font-size: 14px;
+  z-index: 100;
+  opacity: 0;
+  transition: all 400ms var(--ease-spring);
+}
+.undo-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.undo-text { font-weight: 600; }
+.undo-btn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border-radius: 8px;
+  font-size: 13px; font-weight: 700;
+  transition: background var(--duration-quick) var(--ease-soft);
+}
+.undo-btn:hover { background: rgba(255, 255, 255, 0.25); }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="brand">
+    <div class="brand-logo">楽</div>
+    <div class="brand-name">らくらく受発注システム</div>
+  </div>
+  <div class="user-chip">
+    <div class="user-avatar">山</div>
+    <div class="user-name">山田 太郎 さん</div>
+  </div>
+</header>
+
+<div class="page-bar">
+  <a href="home.html" class="home-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+    </svg>
+    ホームに戻る
+  </a>
+  <div class="page-title">注文を受ける</div>
+</div>
+
+<main class="content">
+
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <div class="section-title">どのお客様からの注文ですか?</div>
+    </div>
+    <div class="section-body">
+      <div class="selected-customer">
+        <div class="customer-avatar">カ</div>
+        <div class="customer-info">
+          <div class="customer-name">㈱ニューライフカネタ 米沢金池店</div>
+          <div class="customer-detail">
+            <span>📍 山形県米沢市金池5-8-80</span>
+            <span>📞 0238-27-0861</span>
+          </div>
+        </div>
+        <button class="change-customer">変更する</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <div class="section-title">注文の日付と納品日</div>
+    </div>
+    <div class="section-body">
+      <div class="info-grid">
+        <div>
+          <div class="info-field-label">注文日</div>
+          <input type="date" class="info-field-input" value="2026-04-24">
+        </div>
+        <div>
+          <div class="info-field-label">納品予定日</div>
+          <input type="date" class="info-field-input" value="2026-04-26">
+        </div>
+        <div>
+          <div class="info-field-label">届け先</div>
+          <select class="info-field-select">
+            <option>米沢金池店(自動選択)</option>
+            <option>本社</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <div class="section-title">注文する商品を選んでください</div>
+    </div>
+
+    <div class="items-section">
+      <div class="items-hint">
+        <span class="kbd-hint">⋮⋮ ハンドルを掴んで並び替え</span>
+        <span class="kbd-hint"><span class="kbd">↑↓</span> 候補を選ぶ</span>
+        <span class="kbd-hint"><span class="kbd">Enter</span> 商品を確定</span>
+        <span class="kbd-hint">数量で<span class="kbd">↓</span> 新しい行を追加</span>
+      </div>
+
+      <table class="items-table">
+        <colgroup>
+          <col class="col-handle"><col class="col-num"><col><col class="col-qty">
+          <col class="col-price"><col class="col-amount"><col class="col-tax"><col class="col-del">
+        </colgroup>
+        <thead>
+          <tr>
+            <th></th><th>行</th><th>商品名 / JANコード</th>
+            <th class="center">数量</th><th class="right">単価</th>
+            <th class="right">金額</th><th class="center">税率</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="itemsBody">
+
+          <tr class="item-row">
+            <td><div class="drag-handle" title="掴んで並び替え">
+              <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+            </div></td>
+            <td><span class="row-num">1</span></td>
+            <td><div class="product-cell-wrap">
+              <input type="text" class="product-cell-input" value="RR-03 フローリングシートミント 20枚入">
+              <div class="product-meta">JAN: 4589890530539 / 1ケース 60個 / 引当可能 1,440個</div>
+              <div class="autocomplete-list" data-autocomplete></div>
+            </div></td>
+            <td><input type="number" class="qty-input" value="60" data-qty></td>
+            <td><input type="number" class="price-input" value="50" data-price></td>
+            <td class="amount-cell" data-amount>¥3,000</td>
+            <td><select class="tax-select" data-tax><option value="10" selected>10%</option><option value="8">8%</option></select></td>
+            <td><button class="delete-row" title="この行を削除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></td>
+          </tr>
+
+          <tr class="item-row">
+            <td><div class="drag-handle">
+              <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+            </div></td>
+            <td><span class="row-num">2</span></td>
+            <td><div class="product-cell-wrap">
+              <input type="text" class="product-cell-input" value="RR-06 除菌ウェット 80枚入 蓋付き">
+              <div class="product-meta">JAN: 4589890530560 / 1ケース 24個 / 引当可能 480個</div>
+              <div class="autocomplete-list" data-autocomplete></div>
+            </div></td>
+            <td><input type="number" class="qty-input" value="48" data-qty></td>
+            <td><input type="number" class="price-input" value="120" data-price></td>
+            <td class="amount-cell" data-amount>¥5,760</td>
+            <td><select class="tax-select" data-tax><option value="10" selected>10%</option><option value="8">8%</option></select></td>
+            <td><button class="delete-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></td>
+          </tr>
+
+          <tr class="item-row">
+            <td><div class="drag-handle">
+              <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+            </div></td>
+            <td><span class="row-num">3</span></td>
+            <td><div class="product-cell-wrap">
+              <input type="text" class="product-cell-input empty" placeholder="商品の名前または商品コードを入力...">
+              <div class="autocomplete-list" data-autocomplete></div>
+            </div></td>
+            <td><input type="number" class="qty-input" placeholder="0" data-qty></td>
+            <td><input type="number" class="price-input" placeholder="0" data-price></td>
+            <td class="amount-cell empty" data-amount>¥0</td>
+            <td><select class="tax-select" data-tax><option value="10" selected>10%</option><option value="8">8%</option></select></td>
+            <td><button class="delete-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></td>
+          </tr>
+
+        </tbody>
+      </table>
+
+      <div class="add-row-wrap">
+        <button class="add-row-btn" id="addRowBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          商品の行を追加する
+        </button>
+      </div>
+
+      <div class="totals-row">
+        <div class="totals-box">
+          <div class="total-line"><span>小計</span><span class="num" id="subtotal">¥8,760</span></div>
+          <div class="total-line"><span>消費税(10%)</span><span class="num" id="tax">¥876</span></div>
+          <div class="total-line grand"><span>合計</span><span class="num" id="grandtotal">¥9,636</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <div class="section-title">メモ(任意)</div>
+    </div>
+    <div class="section-body">
+      <input type="text" class="info-field-input" placeholder="お客様への伝言や、社内メモを書けます" style="font-size: 15px">
+    </div>
+  </div>
+
+  <div class="form-footer">
+    <a href="home.html" class="btn-large default">キャンセル</a>
+    <button class="btn-large primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      この内容で注文を確定する
+    </button>
+  </div>
+
+</main>
+
+<div class="undo-toast" id="undoToast">
+  <span class="undo-text">行を削除しました</span>
+  <button class="undo-btn" id="undoBtn">元に戻す</button>
+</div>
+
+<script>
+const PRODUCTS = [
+  { code: '25253053', name: 'RR-03 フローリングシートミント 20枚入', jan: '4589890530539', price: 50, tax: 10, case: 60 },
+  { code: '25253056', name: 'RR-06 除菌ウェット 80枚入 蓋付き', jan: '4589890530560', price: 120, tax: 10, case: 24 },
+  { code: '02650157', name: 'レインボーファイヤーライターRS', jan: '4520935501572', price: 91, tax: 10, case: 144 },
+  { code: '11023045', name: 'プレミアムティッシュ 5箱パック', jan: '4901234567890', price: 380, tax: 10, case: 12 },
+  { code: '11055123', name: '無添加せんべい 醤油味 12枚入', jan: '4901234445566', price: 210, tax: 8, case: 20 },
+  { code: '11078901', name: '緑茶ペットボトル 500ml', jan: '4901234112233', price: 98, tax: 8, case: 24 },
+  { code: '25254201', name: 'キッチン用洗剤 詰め替え 800ml', jan: '4589890770088', price: 280, tax: 10, case: 15 },
+  { code: '11201578', name: 'ナチュラル豆乳 200ml 紙パック', jan: '4901234556677', price: 88, tax: 8, case: 24 },
+];
+
+function recalc() {
+  let subtotal = 0;
+  let taxTotal = 0;
+  document.querySelectorAll('.item-row').forEach(row => {
+    if (row.classList.contains('removing')) return;
+    const qty = parseFloat(row.querySelector('[data-qty]').value) || 0;
+    const price = parseFloat(row.querySelector('[data-price]').value) || 0;
+    const tax = parseFloat(row.querySelector('[data-tax]').value) || 10;
+    const amount = qty * price;
+    const cell = row.querySelector('[data-amount]');
+    const prev = cell.textContent;
+    const next = '¥' + amount.toLocaleString();
+    if (prev !== next) {
+      cell.textContent = next;
+      cell.classList.toggle('empty', amount === 0);
+      cell.classList.remove('updated');
+      void cell.offsetWidth;
+      cell.classList.add('updated');
+    }
+    subtotal += amount;
+    taxTotal += amount * (tax / 100);
+  });
+  document.getElementById('subtotal').textContent = '¥' + subtotal.toLocaleString();
+  document.getElementById('tax').textContent = '¥' + Math.round(taxTotal).toLocaleString();
+  document.getElementById('grandtotal').textContent = '¥' + Math.round(subtotal + taxTotal).toLocaleString();
+}
+
+function renumberRows() {
+  document.querySelectorAll('.item-row').forEach((row, i) => {
+    if (row.classList.contains('removing')) return;
+    const numEl = row.querySelector('.row-num');
+    if (numEl) numEl.textContent = i + 1;
+  });
+}
+
+function createRow() {
+  const tr = document.createElement('tr');
+  tr.className = 'item-row entering';
+  tr.innerHTML = `
+    <td><div class="drag-handle"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></div></td>
+    <td><span class="row-num"></span></td>
+    <td><div class="product-cell-wrap">
+      <input type="text" class="product-cell-input empty" placeholder="商品の名前または商品コードを入力...">
+      <div class="autocomplete-list" data-autocomplete></div>
+    </div></td>
+    <td><input type="number" class="qty-input" placeholder="0" data-qty></td>
+    <td><input type="number" class="price-input" placeholder="0" data-price></td>
+    <td class="amount-cell empty" data-amount>¥0</td>
+    <td><select class="tax-select" data-tax><option value="10" selected>10%</option><option value="8">8%</option></select></td>
+    <td><button class="delete-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></td>
+  `;
+  return tr;
+}
+
+function addRow(focusFirst = true) {
+  const tbody = document.getElementById('itemsBody');
+  const tr = createRow();
+  tbody.appendChild(tr);
+  renumberRows();
+  attachRowHandlers(tr);
+  attachDragHandle(tr);
+  if (focusFirst) tr.querySelector('.product-cell-input').focus();
+  setTimeout(() => tr.classList.remove('entering'), 400);
+}
+
+let undoTimeout = null;
+let lastDeleted = null;
+
+function deleteRow(row) {
+  const tbody = row.parentElement;
+  const idx = Array.from(tbody.children).indexOf(row);
+  lastDeleted = { html: row.outerHTML, idx };
+  row.classList.add('removing');
+  setTimeout(() => { row.remove(); renumberRows(); recalc(); }, 380);
+  showUndoToast();
+}
+
+function showUndoToast() {
+  const toast = document.getElementById('undoToast');
+  toast.classList.add('visible');
+  clearTimeout(undoTimeout);
+  undoTimeout = setTimeout(() => toast.classList.remove('visible'), 5000);
+}
+
+document.getElementById('undoBtn').addEventListener('click', () => {
+  if (!lastDeleted) return;
+  const tbody = document.getElementById('itemsBody');
+  const wrapper = document.createElement('tbody');
+  wrapper.innerHTML = lastDeleted.html;
+  const restored = wrapper.firstElementChild;
+  restored.classList.remove('removing');
+  restored.classList.add('entering');
+  const children = Array.from(tbody.children);
+  if (lastDeleted.idx >= children.length) tbody.appendChild(restored);
+  else tbody.insertBefore(restored, children[lastDeleted.idx]);
+  renumberRows();
+  attachRowHandlers(restored);
+  attachDragHandle(restored);
+  recalc();
+  setTimeout(() => restored.classList.remove('entering'), 400);
+  document.getElementById('undoToast').classList.remove('visible');
+  lastDeleted = null;
+});
+
+function showAutocomplete(input, query) {
+  const list = input.parentElement.querySelector('[data-autocomplete]');
+  if (!list) return;
+  const q = query.trim().toLowerCase();
+  const hits = q.length === 0 ? PRODUCTS.slice(0, 6)
+    : PRODUCTS.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.code.includes(q) ||
+        p.jan.includes(q)
+      ).slice(0, 6);
+
+  if (hits.length === 0) {
+    list.innerHTML = '<div class="ac-empty">該当する商品がありません</div>';
+  } else {
+    list.innerHTML = hits.map((p, i) => `
+      <div class="ac-item ${i === 0 ? 'highlighted' : ''}" data-code="${p.code}">
+        <div class="ac-item-thumb">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <div class="ac-item-info">
+          <div class="ac-item-name">${p.name}</div>
+          <div class="ac-item-meta">${p.code} / JAN: ${p.jan} / 1ケース ${p.case}個</div>
+        </div>
+        <div class="ac-item-price">¥${p.price}</div>
+      </div>
+    `).join('');
+  }
+  list.classList.add('visible');
+
+  list.querySelectorAll('.ac-item').forEach(item => {
+    item.addEventListener('mousedown', e => {
+      e.preventDefault();
+      pickProduct(input, item.dataset.code);
+    });
+    item.addEventListener('mouseenter', () => {
+      list.querySelectorAll('.ac-item').forEach(x => x.classList.remove('highlighted'));
+      item.classList.add('highlighted');
+    });
+  });
+}
+
+function hideAutocomplete(input) {
+  const list = input.parentElement.querySelector('[data-autocomplete]');
+  if (list) list.classList.remove('visible');
+}
+
+function pickProduct(input, code) {
+  const p = PRODUCTS.find(x => x.code === code);
+  if (!p) return;
+  const row = input.closest('.item-row');
+  input.value = p.name;
+  input.classList.remove('empty');
+  let meta = input.parentElement.querySelector('.product-meta');
+  if (!meta) {
+    meta = document.createElement('div');
+    meta.className = 'product-meta';
+    input.parentElement.insertBefore(meta, input.parentElement.querySelector('[data-autocomplete]'));
+  }
+  meta.textContent = `JAN: ${p.jan} / 1ケース ${p.case}個`;
+  row.querySelector('[data-price]').value = p.price;
+  row.querySelector('[data-tax]').value = p.tax;
+  hideAutocomplete(input);
+  recalc();
+  row.querySelector('[data-qty]').focus();
+  row.querySelector('[data-qty]').select();
+}
+
+function attachRowHandlers(row) {
+  row.querySelectorAll('[data-qty], [data-price], [data-tax]').forEach(el => {
+    el.addEventListener('input', recalc);
+    el.addEventListener('change', recalc);
+  });
+
+  const delBtn = row.querySelector('.delete-row');
+  if (delBtn) delBtn.addEventListener('click', () => deleteRow(row));
+
+  const productInput = row.querySelector('.product-cell-input');
+  if (productInput) {
+    productInput.addEventListener('focus', () => showAutocomplete(productInput, productInput.value));
+    productInput.addEventListener('input', () => {
+      productInput.classList.toggle('empty', productInput.value === '');
+      showAutocomplete(productInput, productInput.value);
+    });
+    productInput.addEventListener('blur', () => setTimeout(() => hideAutocomplete(productInput), 150));
+    productInput.addEventListener('keydown', e => {
+      const list = productInput.parentElement.querySelector('[data-autocomplete]');
+      if (!list || !list.classList.contains('visible')) return;
+      const items = list.querySelectorAll('.ac-item');
+      const cur = list.querySelector('.ac-item.highlighted');
+      const idx = Array.from(items).indexOf(cur);
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        items.forEach(x => x.classList.remove('highlighted'));
+        items[Math.min(idx + 1, items.length - 1)]?.classList.add('highlighted');
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        items.forEach(x => x.classList.remove('highlighted'));
+        items[Math.max(idx - 1, 0)]?.classList.add('highlighted');
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (cur) pickProduct(productInput, cur.dataset.code);
+      } else if (e.key === 'Escape') {
+        hideAutocomplete(productInput);
+      }
+    });
+  }
+
+  const qtyInput = row.querySelector('[data-qty]');
+  if (qtyInput) {
+    qtyInput.addEventListener('keydown', e => {
+      if (e.key === 'ArrowDown') {
+        const tbody = document.getElementById('itemsBody');
+        const rows = tbody.querySelectorAll('.item-row:not(.removing)');
+        const isLast = rows[rows.length - 1] === row;
+        if (isLast) {
+          e.preventDefault();
+          addRow();
+        }
+      }
+    });
+  }
+}
+
+let draggingRow = null;
+
+function attachDragHandle(row) {
+  const handle = row.querySelector('.drag-handle');
+  if (!handle) return;
+  handle.addEventListener('mousedown', e => {
+    e.preventDefault();
+    startDrag(row);
+  });
+}
+
+function startDrag(row) {
+  draggingRow = row;
+  row.classList.add('dragging');
+  document.body.style.cursor = 'grabbing';
+  document.body.style.userSelect = 'none';
+  document.addEventListener('mousemove', onDragMove);
+  document.addEventListener('mouseup', onDragEnd);
+}
+
+function onDragMove(e) {
+  if (!draggingRow) return;
+  const tbody = document.getElementById('itemsBody');
+  const rows = Array.from(tbody.querySelectorAll('.item-row:not(.dragging):not(.removing)'));
+  let inserted = false;
+  for (const r of rows) {
+    const rect = r.getBoundingClientRect();
+    const center = rect.top + rect.height / 2;
+    if (e.clientY < center) {
+      tbody.insertBefore(draggingRow, r);
+      inserted = true;
+      break;
+    }
+  }
+  if (!inserted) tbody.appendChild(draggingRow);
+}
+
+function onDragEnd() {
+  if (!draggingRow) return;
+  const row = draggingRow;
+  draggingRow = null;
+  row.classList.remove('dragging');
+  row.classList.add('just-dropped');
+  setTimeout(() => row.classList.remove('just-dropped'), 320);
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+  document.removeEventListener('mousemove', onDragMove);
+  document.removeEventListener('mouseup', onDragEnd);
+  renumberRows();
+}
+
+document.querySelectorAll('.item-row').forEach(row => {
+  attachRowHandlers(row);
+  attachDragHandle(row);
+});
+
+document.getElementById('addRowBtn').addEventListener('click', () => addRow());
+
+recalc();
+</script>
+
+</body>
+</html>

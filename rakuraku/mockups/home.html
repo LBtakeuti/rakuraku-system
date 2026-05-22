@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ホーム | らくらく受発注システム</title>
+<style>
+:root {
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --primary-light: #dbeafe;
+  --primary-lighter: #eff6ff;
+  --bg-base: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-muted: #f1f5f9;
+  --border-light: #e2e8f0;
+  --border-default: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'BIZ UDPGothic', Meiryo, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--text-primary);
+  background: var(--bg-base);
+  line-height: 1.5;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+a { color: inherit; text-decoration: none; }
+
+/* Header */
+.top-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-logo {
+  width: 40px; height: 40px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 18px;
+}
+.brand-name {
+  font-size: 20px;
+  font-weight: 700;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.current-date {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--bg-muted);
+  border-radius: 40px;
+}
+.user-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+}
+.user-name {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Main content */
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 56px 32px;
+}
+
+.greeting {
+  text-align: center;
+  margin-bottom: 56px;
+}
+.greeting-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+.greeting-sub {
+  font-size: 18px;
+  color: var(--text-secondary);
+}
+
+/* 立体的な大きなボタン */
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+}
+
+.action-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 28px 16px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  min-height: 200px;
+  justify-content: center;
+  /* シンプルな立体感: 控えめな影のみ */
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
+}
+
+.action-card:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
+
+/* アイコン */
+.action-icon {
+  width: 60px; height: 60px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-light);
+  color: var(--primary);
+}
+.action-icon svg { width: 30px; height: 30px; stroke-width: 2; }
+
+/* カラーバリエーション */
+.action-card.blue .action-icon { background: #dbeafe; color: #1d4ed8; }
+.action-card.green .action-icon { background: #d1fae5; color: #059669; }
+.action-card.orange .action-icon { background: #fed7aa; color: #c2410c; }
+.action-card.purple .action-icon { background: #e9d5ff; color: #7e22ce; }
+.action-card.teal .action-icon { background: #ccfbf1; color: #0d9488; }
+.action-card.pink .action-icon { background: #fce7f3; color: #be185d; }
+.action-card.amber .action-icon { background: #fef3c7; color: #b45309; }
+.action-card.indigo .action-icon { background: #e0e7ff; color: #4338ca; }
+.action-card.rose .action-icon { background: #ffe4e6; color: #be123c; }
+.action-card.violet .action-icon { background: #ede9fe; color: #6d28d9; }
+
+.action-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.action-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .action-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+}
+@media (max-width: 760px) {
+  .action-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+}
+@media (max-width: 600px) {
+  .action-grid { grid-template-columns: 1fr; }
+  .greeting-title { font-size: 24px; }
+  .content { padding: 32px 16px; }
+}
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="brand">
+    <div class="brand-logo">楽</div>
+    <div class="brand-name">らくらく受発注システム</div>
+  </div>
+  <div class="header-right">
+    <div class="current-date">2026年4月24日(金)</div>
+    <div class="user-chip">
+      <div class="user-avatar">山</div>
+      <div class="user-name">山田 太郎 さん</div>
+    </div>
+  </div>
+</header>
+
+<main class="content">
+
+  <div class="greeting">
+    <div class="greeting-title">こんにちは、山田さん</div>
+    <div class="greeting-sub">今日はどの作業をしますか？ ボタンを押して始めてください</div>
+  </div>
+
+  <div class="action-grid">
+
+    <!-- 上段: 日々やる作業 + 確認 -->
+    <a class="action-card blue" href="order-new.html">
+      <div class="action-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="12" y1="18" x2="12" y2="12"/>
+          <line x1="9" y1="15" x2="15" y2="15"/>
+        </svg>
+      </div>
+      <div class="action-title">注文を受ける</div>
+      <div class="action-desc">お客様からの新しい注文を<br>登録します</div>
+    </a>
+
+    <a class="action-card green" href="delivery.html">
+      <div class="action-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 11 12 14 22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+      </div>
+      <div class="action-title">納品する</div>
+      <div class="action-desc">受けた注文を納品して<br>売上を計上します</div>
+    </a>
+
+    <a class="action-card amber" href="receivings.html">
+      <div class="action-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 16l-4 4-4-4"/>
+          <path d="M12 20V8"/>
+          <path d="M21 12V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6"/>
+        </svg>
+      </div>
+      <div class="action-title">入荷を登録する</div>
+      <div class="action-desc">仕入先から届いた商品を<br>在庫に追加します</div>
+    </a>
+
+    <a class="action-card orange" href="orders.html">
+      <div class="action-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </div>
+      <div class="action-title">注文を見る</div>
+      <div class="action-desc">過去や今の注文を<br>検索・確認します</div>
+    </a>
+
+    <a class="action-card indigo" href="stocks.html">
+      <div class="action-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.91 8.84L8.56 2.23a1.93 1.93 0 0 0-1.81 0L3.1 4.13a2.12 2.12 0 0 0-.05 3.69l12.22 6.93a2 2 0 0 0 1.94 0L21 12.51a2.12 2.12 0 0 0-.09-3.67z"/>
+          <path d="M3.09 8.84v12.16L12 24"/>
+          <path d="M20.91 8.84v12.16L12 24"/>
+          <path d="M12 13.18v10.82"/>
+        </svg>
+      </div>
+      <div class="action-title">在庫を見る</div>
+      <div class="action-desc">商品の在庫数や<br>賞味期限を確認します</div>
+    </a>
+
+    <a class="action-card rose" href="purchase-orders.html">
+      <div class="action-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11H1l8-8 8 8h-8v10z" transform="rotate(180 9 12)"/>
+          <line x1="1" y1="22" x2="17" y2="22"/>
+        </svg>
+      </div>
+      <div class="action-title">発注を見る</div>
+      <div class="action-desc">仕入先への発注を<br>確認します</div>
+    </a>
+
+    <!-- 下段: マスター・実績・請求 -->
+    <a class="action-card purple" href="customers.html">
+      <div class="action-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div class="action-title">お客様を管理する</div>
+      <div class="action-desc">得意先の情報を<br>追加・変更します</div>
+    </a>
+
+    <a class="action-card teal" href="products.html">
+      <div class="action-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
+        </svg>
+      </div>
+      <div class="action-title">商品を管理する</div>
+      <div class="action-desc">取扱い商品を<br>追加・変更します</div>
+    </a>
+
+    <a class="action-card pink" href="sales-list.html">
+      <div class="action-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <div class="action-title">売上を見る</div>
+      <div class="action-desc">過去に納品した<br>記録を確認します</div>
+    </a>
+
+    <a class="action-card violet" href="billing.html">
+      <div class="action-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+      </div>
+      <div class="action-title">請求の業務</div>
+      <div class="action-desc">月締めをして<br>請求書を発行します</div>
+    </a>
+
+  </div>
+
+</main>
+
+</body>
+</html>

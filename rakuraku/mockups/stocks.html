@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>在庫を見る | らくらく受発注システム</title>
+<style>
+:root {
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --primary-light: #dbeafe;
+  --primary-lighter: #eff6ff;
+  --bg-base: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-muted: #f1f5f9;
+  --border-light: #e2e8f0;
+  --border-default: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --success: #059669;
+  --success-light: #d1fae5;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
+  --warning-strong: #b45309;
+  --info: #0284c7;
+  --info-light: #e0f2fe;
+  --danger: #dc2626;
+  --danger-light: #fee2e2;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'BIZ UDPGothic', Meiryo, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--text-primary);
+  background: var(--bg-base);
+  line-height: 1.5;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select { font-family: inherit; font-size: inherit; }
+a { color: inherit; text-decoration: none; }
+
+.top-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+}
+.brand-name { font-size: 18px; font-weight: 700; }
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: var(--bg-muted);
+  border-radius: 40px;
+}
+.user-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+.user-name { font-size: 14px; font-weight: 600; }
+
+.page-bar {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.home-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+.home-btn:hover {
+  background: var(--primary-lighter);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.home-btn svg { width: 18px; height: 18px; }
+.page-title { font-size: 22px; font-weight: 700; }
+
+.content { max-width: 1280px; margin: 0 auto; padding: 32px; }
+
+/* 期限切れ警告サマリー */
+.alert-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.alert-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-left: 4px solid var(--border-default);
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.alert-card.red { border-left-color: var(--danger); }
+.alert-card.yellow { border-left-color: var(--warning); }
+.alert-card.gray { border-left-color: var(--text-muted); }
+.alert-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.alert-icon svg { width: 22px; height: 22px; }
+.alert-card.red .alert-icon { background: var(--danger-light); color: var(--danger); }
+.alert-card.yellow .alert-icon { background: var(--warning-light); color: var(--warning-strong); }
+.alert-card.gray .alert-icon { background: var(--bg-muted); color: var(--text-secondary); }
+.alert-info { flex: 1; }
+.alert-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.alert-value {
+  font-size: 24px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.alert-card.red .alert-value { color: var(--danger); }
+.alert-card.yellow .alert-value { color: var(--warning-strong); }
+
+/* 検索 */
+.search-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+.search-row { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
+.search-input-wrap { flex: 1; min-width: 280px; position: relative; }
+.search-input-wrap svg {
+  position: absolute;
+  left: 14px; top: 50%;
+  transform: translateY(-50%);
+  width: 18px; height: 18px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+}
+.search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-lighter); }
+
+.filter-chip-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+.chip-label { font-size: 13px; color: var(--text-muted); margin-right: 4px; }
+.chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--bg-muted);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.chip:hover { background: var(--primary-lighter); color: var(--primary); }
+.chip.active { background: var(--primary); color: white; }
+
+/* 表示切替トグル */
+.view-toggle {
+  display: inline-flex;
+  background: var(--bg-muted);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 0;
+  margin-bottom: 16px;
+}
+.view-toggle button {
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.view-toggle button.active {
+  background: var(--bg-surface);
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.table-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+.table-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.result-count { font-size: 14px; color: var(--text-secondary); }
+.result-count strong { color: var(--text-primary); font-size: 16px; }
+
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--bg-muted);
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+td { padding: 14px 16px; border-bottom: 1px solid var(--border-light); }
+tbody tr { transition: background 0.1s; }
+tbody tr:hover { background: var(--primary-lighter); }
+tbody tr:last-child td { border-bottom: none; }
+.code { font-variant-numeric: tabular-nums; color: var(--text-secondary); font-size: 13px; }
+.td-num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.td-num.dim { color: var(--text-muted); font-weight: 400; }
+
+.row-warning { background: #fffbeb; }
+.row-warning:hover { background: #fef3c7; }
+.row-danger { background: #fef2f2; }
+.row-danger:hover { background: #fee2e2; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-success { background: var(--success-light); color: var(--success); }
+.badge-warning { background: var(--warning-light); color: var(--warning-strong); }
+.badge-danger { background: var(--danger-light); color: var(--danger); }
+.badge-info { background: var(--info-light); color: var(--info); }
+.badge-muted { background: var(--bg-muted); color: var(--text-secondary); }
+
+.expiry-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.expiry-date { font-weight: 600; font-variant-numeric: tabular-nums; }
+.expiry-days { font-size: 12px; color: var(--text-secondary); }
+
+.qty-display {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: right;
+}
+.qty-main { font-weight: 700; font-size: 15px; }
+.qty-sub { font-size: 12px; color: var(--text-muted); }
+
+.row-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--bg-muted);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.row-action:hover { background: var(--primary); color: white; }
+.row-action svg { width: 14px; height: 14px; }
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-light);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.page-controls { display: flex; gap: 6px; align-items: center; }
+.page-btn {
+  padding: 8px 14px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 36px;
+  text-align: center;
+  color: var(--text-primary);
+}
+.page-btn:hover { background: var(--bg-muted); }
+.page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.bold { font-weight: 600; }
+.muted { color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="brand">
+    <div class="brand-logo">楽</div>
+    <div class="brand-name">らくらく受発注システム</div>
+  </div>
+  <div class="user-chip">
+    <div class="user-avatar">山</div>
+    <div class="user-name">山田 太郎 さん</div>
+  </div>
+</header>
+
+<div class="page-bar">
+  <a href="home.html" class="home-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+    </svg>
+    ホームに戻る
+  </a>
+  <div class="page-title">在庫を見る</div>
+</div>
+
+<main class="content">
+
+  <!-- アラートサマリー -->
+  <div class="alert-grid">
+    <div class="alert-card red">
+      <div class="alert-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <div class="alert-info">
+        <div class="alert-label">期限切れ間近(14日以内)</div>
+        <div class="alert-value">3 件</div>
+      </div>
+    </div>
+    <div class="alert-card yellow">
+      <div class="alert-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="alert-info">
+        <div class="alert-label">期限要注意(60日以内)</div>
+        <div class="alert-value">12 件</div>
+      </div>
+    </div>
+    <div class="alert-card gray">
+      <div class="alert-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 7h-9"/>
+          <path d="M14 17H5"/>
+          <circle cx="17" cy="17" r="3"/>
+          <circle cx="7" cy="7" r="3"/>
+        </svg>
+      </div>
+      <div class="alert-info">
+        <div class="alert-label">安全在庫を下回る商品</div>
+        <div class="alert-value">5 件</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 検索 -->
+  <div class="search-card">
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" class="search-input" placeholder="商品名、商品コード、JANコードで検索...">
+      </div>
+    </div>
+    <div class="filter-chip-row">
+      <span class="chip-label">絞り込み:</span>
+      <button class="chip active">すべて</button>
+      <button class="chip">期限切れ間近</button>
+      <button class="chip">期限要注意</button>
+      <button class="chip">安全在庫を下回る</button>
+      <button class="chip">在庫切れ</button>
+    </div>
+  </div>
+
+  <!-- 表示切替 -->
+  <div class="view-toggle">
+    <button class="active">商品ごと</button>
+    <button>ロットごと(詳細)</button>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="result-count"><strong>248</strong> 件の商品(在庫あり)</div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>商品コード</th>
+            <th>商品名</th>
+            <th class="td-num">実在庫</th>
+            <th class="td-num">引当中</th>
+            <th class="td-num">引当可能</th>
+            <th>最も近い期限</th>
+            <th>状態</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row-danger">
+            <td class="code">11078901</td>
+            <td class="bold">緑茶ペットボトル 500ml</td>
+            <td class="td-num">
+              <div class="qty-display">
+                <span class="qty-main">3,600</span>
+                <span class="qty-sub">150ケース</span>
+              </div>
+            </td>
+            <td class="td-num">240</td>
+            <td class="td-num">
+              <div class="qty-display">
+                <span class="qty-main">3,360</span>
+                <span class="qty-sub">140ケース</span>
+              </div>
+            </td>
+            <td>
+              <div class="expiry-cell">
+                <span class="expiry-date">2026/05/08</span>
+                <span class="expiry-days" style="color: var(--danger); font-weight: 600">あと10日</span>
+              </div>
+            </td>
+            <td><span class="badge badge-danger">期限切れ間近</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr class="row-warning">
+            <td class="code">11055123</td>
+            <td class="bold">無添加せんべい 醤油味 12枚入</td>
+            <td class="td-num">
+              <div class="qty-display">
+                <span class="qty-main">580</span>
+                <span class="qty-sub">29ケース</span>
+              </div>
+            </td>
+            <td class="td-num">60</td>
+            <td class="td-num">
+              <div class="qty-display">
+                <span class="qty-main">520</span>
+                <span class="qty-sub">26ケース</span>
+              </div>
+            </td>
+            <td>
+              <div class="expiry-cell">
+                <span class="expiry-date">2026/06/15</span>
+                <span class="expiry-days" style="color: var(--warning-strong); font-weight: 600">あと48日</span>
+              </div>
+            </td>
+            <td><span class="badge badge-warning">期限要注意</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td class="code">11023045</td>
+            <td class="bold">プレミアムティッシュ 5箱パック</td>
+            <td class="td-num">
+              <div class="qty-display">
+                <span class="qty-main">240</span>
+                <span class="qty-sub">20ケース</span>
+              </div>
+            </td>
+            <td class="td-num">36</td>
+            <td class="td-num">
+              <div class="qty-display">
+                <span class="qty-main">204</span>
+                <span class="qty-sub">17ケース</span>
+              </div>
+            </td>
+            <td>
+              <div class="expiry-cell">
+                <span class="expiry-date muted">期限なし</span>
+                <span class="expiry-days muted">雑貨</span>
+              </div>
+            </td>
+            <td><span class="badge badge-success">問題なし</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td class="code">02650157</td>
+            <td class="bold">レインボーファイヤーライターRS</td>
+            <td class="td-num">
+              <div class="qty-display">
+                <span class="qty-main">1,440</span>
+                <span class="qty-sub">10ケース</span>
+              </div>
+            </td>
+            <td class="td-num">144</td>
+            <td class="td-num">
+              <div class="qty-display">
+                <span class="qty-main">1,296</span>
+                <span class="qty-sub">9ケース</span>
+              </div>
+            </td>
+            <td>
+              <div class="expiry-cell">
+                <span class="expiry-date muted">期限なし</span>
+                <span class="expiry-days muted">雑貨</span>
+              </div>
+            </td>
+            <td><span class="badge badge-success">問題なし</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr class="row-warning">
+            <td class="code">11201578</td>
+            <td class="bold">ナチュラル豆乳 200ml 紙パック</td>
+            <td class="td-num">
+              <div class="qty-display">
+                <span class="qty-main">144</span>
+                <span class="qty-sub">6ケース</span>
+              </div>
+            </td>
+            <td class="td-num">24</td>
+            <td class="td-num">
+              <div class="qty-display">
+                <span class="qty-main">120</span>
+                <span class="qty-sub">5ケース</span>
+              </div>
+            </td>
+            <td>
+              <div class="expiry-cell">
+                <span class="expiry-date">2026/05/22</span>
+                <span class="expiry-days" style="color: var(--warning-strong); font-weight: 600">あと24日</span>
+              </div>
+            </td>
+            <td><span class="badge badge-warning">期限要注意</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td class="code">11078903</td>
+            <td class="bold">麦茶ペットボトル 600ml</td>
+            <td class="td-num">
+              <div class="qty-display">
+                <span class="qty-main">48</span>
+                <span class="qty-sub">2ケース</span>
+              </div>
+            </td>
+            <td class="td-num">24</td>
+            <td class="td-num">
+              <div class="qty-display">
+                <span class="qty-main">24</span>
+                <span class="qty-sub">1ケース</span>
+              </div>
+            </td>
+            <td>
+              <div class="expiry-cell">
+                <span class="expiry-date">2026/08/30</span>
+                <span class="expiry-days muted">あと124日</span>
+              </div>
+            </td>
+            <td><span class="badge badge-muted">安全在庫を下回る</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <div>1〜20件 / 248件中</div>
+      <div class="page-controls">
+        <button class="page-btn" disabled>← 前へ</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">…</button>
+        <button class="page-btn">13</button>
+        <button class="page-btn">次へ →</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const group = chip.parentElement;
+      group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+  document.querySelectorAll('.view-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

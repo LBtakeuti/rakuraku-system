@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>発注を見る | らくらく受発注システム</title>
+<style>
+:root {
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --primary-light: #dbeafe;
+  --primary-lighter: #eff6ff;
+  --bg-base: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-muted: #f1f5f9;
+  --border-light: #e2e8f0;
+  --border-default: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --success: #059669;
+  --success-light: #d1fae5;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
+  --warning-strong: #b45309;
+  --info: #0284c7;
+  --info-light: #e0f2fe;
+  --danger: #dc2626;
+  --danger-light: #fee2e2;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'BIZ UDPGothic', Meiryo, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--text-primary);
+  background: var(--bg-base);
+  line-height: 1.5;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select { font-family: inherit; font-size: inherit; }
+a { color: inherit; text-decoration: none; }
+
+.top-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 16px;
+}
+.brand-name { font-size: 18px; font-weight: 700; }
+.user-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px; background: var(--bg-muted); border-radius: 40px;
+}
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--primary-light); color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px;
+}
+.user-name { font-size: 14px; font-weight: 600; }
+
+.page-bar {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 32px;
+  display: flex; align-items: center; gap: 20px;
+}
+.home-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px; font-weight: 600; color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+.home-btn:hover {
+  background: var(--primary-lighter);
+  border-color: var(--primary); color: var(--primary);
+}
+.home-btn svg { width: 18px; height: 18px; }
+.page-title { font-size: 22px; font-weight: 700; }
+
+.content { max-width: 1280px; margin: 0 auto; padding: 32px; }
+
+.action-bar { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.big-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 24px; border-radius: 12px;
+  font-size: 16px; font-weight: 700;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+  transition: all 0.15s;
+}
+.big-btn svg { width: 20px; height: 20px; }
+.big-btn-primary { background: var(--primary); color: white; }
+.big-btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+}
+.big-btn-default {
+  background: var(--bg-surface);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+.big-btn-default:hover { background: var(--bg-muted); transform: translateY(-1px); }
+
+.search-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+.search-row { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
+.search-input-wrap { flex: 1; min-width: 280px; position: relative; }
+.search-input-wrap svg {
+  position: absolute; left: 14px; top: 50%;
+  transform: translateY(-50%);
+  width: 18px; height: 18px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px; outline: none;
+}
+.search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-lighter); }
+
+.filter-chip-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+.chip-label { font-size: 13px; color: var(--text-muted); margin-right: 4px; }
+.chip {
+  padding: 6px 14px; border-radius: 20px;
+  font-size: 13px; font-weight: 600;
+  background: var(--bg-muted); color: var(--text-secondary);
+  cursor: pointer;
+}
+.chip:hover { background: var(--primary-lighter); color: var(--primary); }
+.chip.active { background: var(--primary); color: white; }
+
+.table-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+.table-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.result-count { font-size: 14px; color: var(--text-secondary); }
+.result-count strong { color: var(--text-primary); font-size: 16px; }
+
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 600; font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--bg-muted);
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+td { padding: 14px 16px; border-bottom: 1px solid var(--border-light); }
+tbody tr { cursor: pointer; transition: background 0.1s; }
+tbody tr:hover { background: var(--primary-lighter); }
+tbody tr:last-child td { border-bottom: none; }
+.code { font-variant-numeric: tabular-nums; color: var(--text-secondary); font-size: 13px; }
+.td-num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 4px 10px; border-radius: 12px;
+  font-size: 12px; font-weight: 600;
+  white-space: nowrap;
+}
+.badge-success { background: var(--success-light); color: var(--success); }
+.badge-warning { background: var(--warning-light); color: var(--warning-strong); }
+.badge-info { background: var(--info-light); color: var(--info); }
+.badge-danger { background: var(--danger-light); color: var(--danger); }
+
+/* 入荷率プログレスバー */
+.progress-cell { min-width: 140px; }
+.progress-text {
+  font-size: 12px; color: var(--text-secondary);
+  margin-bottom: 4px;
+  display: flex; justify-content: space-between;
+}
+.progress-bar {
+  height: 6px;
+  background: var(--bg-muted);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--success);
+  transition: width 0.3s;
+}
+.progress-fill.partial { background: var(--warning); }
+.progress-fill.empty { background: var(--bg-muted); }
+
+.row-action {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 8px;
+  background: var(--bg-muted);
+  font-size: 13px; font-weight: 600;
+  color: var(--text-secondary);
+}
+.row-action:hover { background: var(--primary); color: white; }
+.row-action svg { width: 14px; height: 14px; }
+.row-action-receive {
+  background: var(--success);
+  color: white;
+}
+.row-action-receive:hover { background: #047857; }
+
+.pagination {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-light);
+  font-size: 14px; color: var(--text-secondary);
+}
+.page-controls { display: flex; gap: 6px; align-items: center; }
+.page-btn {
+  padding: 8px 14px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  font-size: 14px; font-weight: 600;
+  min-width: 36px; text-align: center;
+  color: var(--text-primary);
+}
+.page-btn:hover { background: var(--bg-muted); }
+.page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.bold { font-weight: 600; }
+.muted { color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="brand">
+    <div class="brand-logo">楽</div>
+    <div class="brand-name">らくらく受発注システム</div>
+  </div>
+  <div class="user-chip">
+    <div class="user-avatar">山</div>
+    <div class="user-name">山田 太郎 さん</div>
+  </div>
+</header>
+
+<div class="page-bar">
+  <a href="home.html" class="home-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+    </svg>
+    ホームに戻る
+  </a>
+  <div class="page-title">発注を見る</div>
+</div>
+
+<main class="content">
+
+  <div class="action-bar">
+    <a href="receivings.html" class="big-btn big-btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 16l-4 4-4-4"/>
+        <path d="M12 20V8"/>
+        <path d="M21 12V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6"/>
+      </svg>
+      入荷を登録する
+    </a>
+    <button class="big-btn big-btn-default">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      手動で発注を作る
+    </button>
+  </div>
+
+  <div class="search-card">
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" class="search-input" placeholder="発注番号、仕入先、商品名で検索...">
+      </div>
+    </div>
+    <div class="filter-chip-row">
+      <span class="chip-label">状態:</span>
+      <button class="chip active">すべて</button>
+      <button class="chip">未入荷</button>
+      <button class="chip">一部入荷</button>
+      <button class="chip">全量入荷</button>
+      <button class="chip">取消し</button>
+    </div>
+    <div class="filter-chip-row">
+      <span class="chip-label">期間:</span>
+      <button class="chip">今週</button>
+      <button class="chip active">今月</button>
+      <button class="chip">先月</button>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="result-count"><strong>28</strong> 件の発注があります</div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>発注番号</th>
+            <th>発注日</th>
+            <th>入荷予定日</th>
+            <th>仕入先</th>
+            <th class="td-num">金額(税込)</th>
+            <th>入荷状況</th>
+            <th>状態</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr onclick="location.href='receivings.html'">
+            <td class="code bold">P00001284</td>
+            <td>2026/04/24</td>
+            <td>2026/04/26</td>
+            <td class="bold">サンライズ商事 大阪営業所</td>
+            <td class="td-num">¥48,600</td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-text">
+                  <span>0 / 240 個</span>
+                  <span class="muted">0%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill empty" style="width: 0%"></div></div>
+              </div>
+            </td>
+            <td><span class="badge badge-info">発注済み</span></td>
+            <td>
+              <button class="row-action row-action-receive" onclick="event.stopPropagation(); location.href='receivings.html'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                入荷確定
+              </button>
+            </td>
+          </tr>
+          <tr onclick="location.href='receivings.html'">
+            <td class="code bold">P00001283</td>
+            <td>2026/04/23</td>
+            <td>2026/04/25</td>
+            <td class="bold">山形フードセンター</td>
+            <td class="td-num">¥126,720</td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-text">
+                  <span>360 / 720 個</span>
+                  <span style="color: var(--warning-strong); font-weight: 600">50%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill partial" style="width: 50%"></div></div>
+              </div>
+            </td>
+            <td><span class="badge badge-warning">一部入荷</span></td>
+            <td>
+              <button class="row-action row-action-receive" onclick="event.stopPropagation(); location.href='receivings.html'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                残り入荷
+              </button>
+            </td>
+          </tr>
+          <tr onclick="location.href='receivings.html'">
+            <td class="code bold">P00001282</td>
+            <td>2026/04/22</td>
+            <td>2026/04/24</td>
+            <td class="bold">サンライズ商事 大阪営業所</td>
+            <td class="td-num">¥35,200</td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-text">
+                  <span>200 / 200 個</span>
+                  <span style="color: var(--success); font-weight: 600">100%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+              </div>
+            </td>
+            <td><span class="badge badge-success">全量入荷</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr onclick="location.href='receivings.html'">
+            <td class="code bold">P00001281</td>
+            <td>2026/04/22</td>
+            <td>2026/04/24</td>
+            <td class="bold">関東ライフ商品</td>
+            <td class="td-num">¥18,920</td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-text">
+                  <span>0 / 144 個</span>
+                  <span style="color: var(--danger); font-weight: 600">遅延</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill empty" style="width: 0%"></div></div>
+              </div>
+            </td>
+            <td><span class="badge badge-danger">入荷遅延</span></td>
+            <td>
+              <button class="row-action row-action-receive" onclick="event.stopPropagation(); location.href='receivings.html'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                入荷確定
+              </button>
+            </td>
+          </tr>
+          <tr onclick="location.href='receivings.html'">
+            <td class="code bold">P00001280</td>
+            <td>2026/04/21</td>
+            <td>2026/04/23</td>
+            <td class="bold">山形フードセンター</td>
+            <td class="td-num">¥87,560</td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-text">
+                  <span>480 / 480 個</span>
+                  <span style="color: var(--success); font-weight: 600">100%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 100%"></div></div>
+              </div>
+            </td>
+            <td><span class="badge badge-success">全量入荷</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr onclick="location.href='receivings.html'">
+            <td class="code bold">P00001279</td>
+            <td>2026/04/20</td>
+            <td>2026/04/24</td>
+            <td class="bold">サンライズ商事 大阪営業所</td>
+            <td class="td-num">¥56,400</td>
+            <td>
+              <div class="progress-cell">
+                <div class="progress-text">
+                  <span>0 / 360 個</span>
+                  <span class="muted">0%</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill empty" style="width: 0%"></div></div>
+              </div>
+            </td>
+            <td><span class="badge badge-info">発注済み</span></td>
+            <td>
+              <button class="row-action row-action-receive" onclick="event.stopPropagation(); location.href='receivings.html'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                入荷確定
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <div>1〜20件 / 28件中</div>
+      <div class="page-controls">
+        <button class="page-btn" disabled>← 前へ</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">次へ →</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const group = chip.parentElement;
+      group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

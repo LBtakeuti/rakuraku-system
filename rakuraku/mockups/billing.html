@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>請求の業務 | らくらく受発注システム</title>
+<style>
+:root {
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --primary-light: #dbeafe;
+  --primary-lighter: #eff6ff;
+  --bg-base: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-muted: #f1f5f9;
+  --border-light: #e2e8f0;
+  --border-default: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --success: #059669;
+  --success-light: #d1fae5;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
+  --warning-strong: #b45309;
+  --info: #0284c7;
+  --info-light: #e0f2fe;
+  --danger: #dc2626;
+  --danger-light: #fee2e2;
+  --purple: #7e22ce;
+  --purple-light: #f3e8ff;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'BIZ UDPGothic', Meiryo, sans-serif;
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--text-primary);
+  background: var(--bg-base);
+  line-height: 1.5;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select { font-family: inherit; font-size: inherit; }
+a { color: inherit; text-decoration: none; }
+
+.top-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 14px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 16px;
+}
+.brand-name { font-size: 18px; font-weight: 700; }
+.user-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px; background: var(--bg-muted); border-radius: 40px;
+}
+.user-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--primary-light); color: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px;
+}
+.user-name { font-size: 14px; font-weight: 600; }
+
+.page-bar {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 32px;
+  display: flex; align-items: center; gap: 20px;
+}
+.home-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px; font-weight: 600; color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  transition: all 0.2s var(--ease-soft);
+}
+.home-btn:hover {
+  background: var(--primary-lighter);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.home-btn svg { width: 18px; height: 18px; }
+.page-title { font-size: 22px; font-weight: 700; }
+
+.content { max-width: 1280px; margin: 0 auto; padding: 32px; }
+
+/* イントロ */
+.intro-card {
+  background: var(--purple-light);
+  border: 1px solid #d8b4fe;
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+.intro-icon {
+  width: 48px; height: 48px;
+  background: var(--purple);
+  color: white;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.intro-icon svg { width: 28px; height: 28px; }
+.intro-text { flex: 1; }
+.intro-title { font-size: 17px; font-weight: 700; color: var(--purple); margin-bottom: 4px; }
+.intro-desc { font-size: 14px; color: #6b21a8; line-height: 1.6; }
+
+/* ステップカード */
+.step-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+.step-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center; gap: 14px;
+}
+.step-badge {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 16px;
+  flex-shrink: 0;
+}
+.step-badge.done { background: var(--success); }
+.step-titles { flex: 1; }
+.step-title { font-size: 17px; font-weight: 700; }
+.step-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+.step-status {
+  font-size: 13px; font-weight: 600;
+  padding: 5px 12px; border-radius: 20px;
+}
+.step-status.done { background: var(--success-light); color: var(--success); }
+.step-status.active { background: var(--primary-lighter); color: var(--primary); }
+
+.step-body { padding: 24px; }
+
+/* ステップ1: 締め設定 */
+.closing-form {
+  display: flex; gap: 20px; align-items: flex-end;
+  flex-wrap: wrap;
+}
+.form-field { flex: 0 0 auto; }
+.form-field-label {
+  font-size: 14px; font-weight: 600;
+  color: var(--text-secondary); margin-bottom: 6px;
+}
+.form-field-input, .form-field-select {
+  padding: 11px 14px;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px;
+  background: var(--bg-surface);
+  outline: none;
+  transition: all 0.15s var(--ease-soft);
+}
+.form-field-input:focus, .form-field-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-lighter);
+}
+.form-field-select { min-width: 200px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-size: 15px; font-weight: 700;
+  border: 1px solid transparent;
+  transition: all 0.2s var(--ease-soft);
+}
+.btn svg { width: 18px; height: 18px; }
+.btn-primary {
+  background: var(--primary); color: white;
+  box-shadow: 0 2px 6px rgba(29, 78, 216, 0.2);
+}
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+}
+.btn-default {
+  background: var(--bg-surface);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+.btn-default:hover { background: var(--bg-muted); }
+
+/* 締め結果のサマリー */
+.closing-summary {
+  display: flex; gap: 16px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-light);
+  flex-wrap: wrap;
+}
+.summary-pill {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 14px 20px;
+  background: var(--bg-muted);
+  border-radius: 12px;
+  min-width: 160px;
+}
+.summary-pill-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+.summary-pill-value {
+  font-size: 22px; font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.summary-pill-value.money { color: var(--primary); }
+
+/* テーブル */
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th {
+  text-align: left;
+  padding: 12px 14px;
+  font-weight: 600; font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--bg-muted);
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+th.right { text-align: right; }
+th.center { text-align: center; }
+td {
+  padding: 13px 14px;
+  border-bottom: 1px solid var(--border-light);
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr { transition: background 0.1s; }
+tbody tr:hover { background: var(--primary-lighter); }
+.td-num { text-align: right; font-variant-numeric: tabular-nums; }
+.td-money { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.code { font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+.bold { font-weight: 600; }
+.muted { color: var(--text-muted); }
+
+/* 請求額の強調 */
+.bill-amount {
+  font-size: 15px; font-weight: 800;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 帳票タイプバッジ */
+.format-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px;
+  border-radius: 10px;
+  font-size: 11px; font-weight: 700;
+}
+.format-badge.only { background: var(--info-light); color: var(--info); }
+.format-badge.delivery { background: var(--purple-light); color: var(--purple); }
+
+/* チェックボックス */
+.check {
+  width: 22px; height: 22px;
+  border: 2px solid var(--border-default);
+  border-radius: 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  background: var(--bg-surface);
+  transition: all 0.15s var(--ease-soft);
+}
+.check.checked { background: var(--primary); border-color: var(--primary); }
+.check.checked::after { content: '✓'; color: white; font-weight: 800; font-size: 14px; }
+.check-all-label {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 600; color: var(--text-secondary);
+  cursor: pointer;
+}
+
+/* テーブルツールバー */
+.table-toolbar {
+  padding: 14px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--border-light);
+}
+.toolbar-info { font-size: 14px; color: var(--text-secondary); }
+.toolbar-info strong { color: var(--text-primary); font-size: 16px; }
+.print-list-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  font-size: 13px; font-weight: 600; color: var(--text-secondary);
+}
+.print-list-btn:hover { background: var(--bg-muted); color: var(--text-primary); }
+.print-list-btn svg { width: 15px; height: 15px; }
+
+/* ステップ3: 発行バー */
+.issue-bar {
+  background: var(--text-primary);
+  color: white;
+  border-radius: 14px;
+  padding: 20px 28px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
+}
+.issue-info { font-size: 15px; }
+.issue-info strong { color: #c4b5fd; font-size: 22px; font-weight: 800; }
+.issue-actions { display: flex; gap: 12px; }
+.issue-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 26px;
+  border-radius: 10px;
+  font-size: 15px; font-weight: 700;
+}
+.issue-btn svg { width: 18px; height: 18px; }
+.issue-btn-main { background: var(--purple); color: white; }
+.issue-btn-main:hover { background: #6b21a8; }
+.issue-btn-sub {
+  background: transparent; color: white;
+  border: 1px solid #475569;
+}
+.issue-btn-sub:hover { background: #1e293b; }
+
+.locked { opacity: 0.5; pointer-events: none; }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="brand">
+    <div class="brand-logo">楽</div>
+    <div class="brand-name">らくらく受発注システム</div>
+  </div>
+  <div class="user-chip">
+    <div class="user-avatar">山</div>
+    <div class="user-name">山田 太郎 さん</div>
+  </div>
+</header>
+
+<div class="page-bar">
+  <a href="home.html" class="home-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+    </svg>
+    ホームに戻る
+  </a>
+  <div class="page-title">請求の業務</div>
+</div>
+
+<main class="content">
+
+  <div class="intro-card">
+    <div class="intro-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
+    </div>
+    <div class="intro-text">
+      <div class="intro-title">月に一度の請求のお仕事です</div>
+      <div class="intro-desc">
+        上から順に、1→2→3 と進めてください。<br>
+        まず締める期間を決めて、内容を確認し、最後に請求書を発行します。
+      </div>
+    </div>
+  </div>
+
+  <!-- ステップ1: 締め対象を確認 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-badge done">1</div>
+      <div class="step-titles">
+        <div class="step-title">締める期間を決める</div>
+        <div class="step-sub">いつからいつまでの納品分を請求するかを選びます</div>
+      </div>
+      <div class="step-status done">完了</div>
+    </div>
+    <div class="step-body">
+      <div class="closing-form">
+        <div class="form-field">
+          <div class="form-field-label">締め日</div>
+          <select class="form-field-select">
+            <option>毎月20日締め</option>
+            <option>毎月末日締め</option>
+            <option>毎月15日締め</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <div class="form-field-label">対象期間 開始</div>
+          <input type="date" class="form-field-input" value="2026-02-21">
+        </div>
+        <div class="form-field">
+          <div class="form-field-label">対象期間 終了(締め日)</div>
+          <input type="date" class="form-field-input" value="2026-03-20">
+        </div>
+        <button class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          この期間で集計する
+        </button>
+      </div>
+
+      <div class="closing-summary">
+        <div class="summary-pill">
+          <span class="summary-pill-label">対象のお客様</span>
+          <span class="summary-pill-value">26 社</span>
+        </div>
+        <div class="summary-pill">
+          <span class="summary-pill-label">売上伝票の枚数</span>
+          <span class="summary-pill-value">30 枚</span>
+        </div>
+        <div class="summary-pill">
+          <span class="summary-pill-label">今回の請求合計</span>
+          <span class="summary-pill-value money">¥3,507,815</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ステップ2: 請求内容を確認 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-badge done">2</div>
+      <div class="step-titles">
+        <div class="step-title">請求の内容を確認する</div>
+        <div class="step-sub">お客様ごとの請求金額です。おかしな数字がないか確認してください</div>
+      </div>
+      <div class="step-status active">確認中</div>
+    </div>
+
+    <div class="table-toolbar">
+      <div class="toolbar-info">締め対象の <strong>26</strong> 社</div>
+      <button class="print-list-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+        </svg>
+        請求一覧表を印刷する
+      </button>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>コード</th>
+            <th>お客様</th>
+            <th class="right">前回請求</th>
+            <th class="right">入金</th>
+            <th class="right">繰越</th>
+            <th class="right">今回売上</th>
+            <th class="right">消費税</th>
+            <th class="right">今回請求額</th>
+            <th class="center">回収予定</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="code">000113</td>
+            <td class="bold">株式会社えびすや商店 本社</td>
+            <td class="td-num">60,522</td>
+            <td class="td-num">0</td>
+            <td class="td-num">60,522</td>
+            <td class="td-num">23,940</td>
+            <td class="td-num">2,394</td>
+            <td class="td-money"><span class="bill-amount">¥86,856</span></td>
+            <td class="center muted">4/20</td>
+          </tr>
+          <tr>
+            <td class="code">000141</td>
+            <td class="bold">株式会社えびすや商店 ABS御光センター</td>
+            <td class="td-num">6,864</td>
+            <td class="td-num">0</td>
+            <td class="td-num">6,864</td>
+            <td class="td-num">19,440</td>
+            <td class="td-num">1,944</td>
+            <td class="td-money"><span class="bill-amount">¥28,248</span></td>
+            <td class="center muted">4/20</td>
+          </tr>
+          <tr>
+            <td class="code">000143</td>
+            <td class="bold">有限会社えびすや商店 ABS御光センター</td>
+            <td class="td-num">79,002</td>
+            <td class="td-num">0</td>
+            <td class="td-num">79,002</td>
+            <td class="td-num">0</td>
+            <td class="td-num">0</td>
+            <td class="td-money"><span class="bill-amount">¥79,002</span></td>
+            <td class="center muted">4/20</td>
+          </tr>
+          <tr>
+            <td class="code">000146</td>
+            <td class="bold">株式会社えびすや商店</td>
+            <td class="td-num">24,816</td>
+            <td class="td-num">0</td>
+            <td class="td-num">24,816</td>
+            <td class="td-num">27,300</td>
+            <td class="td-num">2,730</td>
+            <td class="td-money"><span class="bill-amount">¥54,846</span></td>
+            <td class="center muted">4/20</td>
+          </tr>
+          <tr>
+            <td class="code">000203</td>
+            <td class="bold">株式会社えびすや商店 ABS御光センター</td>
+            <td class="td-num">2,564,004</td>
+            <td class="td-num">1,662,854</td>
+            <td class="td-num">898,604</td>
+            <td class="td-num">1,827,200</td>
+            <td class="td-num">182,720</td>
+            <td class="td-money"><span class="bill-amount">¥2,908,524</span></td>
+            <td class="center muted">4/20</td>
+          </tr>
+          <tr>
+            <td class="code">000218</td>
+            <td class="bold">株式会社タカハシ</td>
+            <td class="td-num">0</td>
+            <td class="td-num">0</td>
+            <td class="td-num">0</td>
+            <td class="td-num">25,200</td>
+            <td class="td-num">2,520</td>
+            <td class="td-money"><span class="bill-amount">¥27,720</span></td>
+            <td class="center muted">4/30</td>
+          </tr>
+          <tr>
+            <td class="code">000219</td>
+            <td class="bold">株式会社ジェーソン</td>
+            <td class="td-num">2,800,784</td>
+            <td class="td-num">2,603,226</td>
+            <td class="td-num">0</td>
+            <td class="td-num">29,160</td>
+            <td class="td-num">2,916</td>
+            <td class="td-money"><span class="bill-amount">¥32,076</span></td>
+            <td class="center muted">4/20</td>
+          </tr>
+          <tr>
+            <td class="code">000668</td>
+            <td class="bold">株式会社水高</td>
+            <td class="td-num">35,607</td>
+            <td class="td-num">35,607</td>
+            <td class="td-num">0</td>
+            <td class="td-num">242,334</td>
+            <td class="td-num">24,233</td>
+            <td class="td-money"><span class="bill-amount">¥266,567</span></td>
+            <td class="center muted">4/20</td>
+          </tr>
+          <tr>
+            <td class="code">000675</td>
+            <td class="bold">株式会社 はんない(改井店)</td>
+            <td class="td-num">0</td>
+            <td class="td-num">0</td>
+            <td class="td-num">0</td>
+            <td class="td-num">22,200</td>
+            <td class="td-num">1,776</td>
+            <td class="td-money"><span class="bill-amount">¥23,976</span></td>
+            <td class="center muted">4/10</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ステップ3: 請求書を発行 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-badge">3</div>
+      <div class="step-titles">
+        <div class="step-title">請求書を発行する</div>
+        <div class="step-sub">発行するお客様を選んでください。帳票の種類はお客様ごとに自動で決まります</div>
+      </div>
+      <div class="step-status active">未発行</div>
+    </div>
+
+    <div class="table-toolbar">
+      <label class="check-all-label">
+        <span class="check checked" id="checkAll"></span>
+        すべて選ぶ(26社)
+      </label>
+      <div class="toolbar-info"><strong>26</strong> 社を選択中</div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th class="center" style="width:50px"></th>
+            <th>コード</th>
+            <th>お客様</th>
+            <th>帳票の種類</th>
+            <th class="right">今回請求額</th>
+            <th class="center">状態</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="center"><span class="check checked"></span></td>
+            <td class="code">000113</td>
+            <td class="bold">株式会社えびすや商店 本社</td>
+            <td><span class="format-badge only">請求書のみ</span></td>
+            <td class="td-money">¥86,856</td>
+            <td class="center muted">未発行</td>
+          </tr>
+          <tr>
+            <td class="center"><span class="check checked"></span></td>
+            <td class="code">000141</td>
+            <td class="bold">株式会社えびすや商店 ABS御光センター</td>
+            <td><span class="format-badge delivery">請求書+納品書</span></td>
+            <td class="td-money">¥28,248</td>
+            <td class="center muted">未発行</td>
+          </tr>
+          <tr>
+            <td class="center"><span class="check checked"></span></td>
+            <td class="code">000203</td>
+            <td class="bold">株式会社えびすや商店 ABS御光センター</td>
+            <td><span class="format-badge delivery">請求書+納品書</span></td>
+            <td class="td-money">¥2,908,524</td>
+            <td class="center muted">未発行</td>
+          </tr>
+          <tr>
+            <td class="center"><span class="check checked"></span></td>
+            <td class="code">000218</td>
+            <td class="bold">株式会社タカハシ</td>
+            <td><span class="format-badge only">請求書のみ</span></td>
+            <td class="td-money">¥27,720</td>
+            <td class="center muted">未発行</td>
+          </tr>
+          <tr>
+            <td class="center"><span class="check checked"></span></td>
+            <td class="code">000668</td>
+            <td class="bold">株式会社水高</td>
+            <td><span class="format-badge delivery">請求書+納品書</span></td>
+            <td class="td-money">¥266,567</td>
+            <td class="center muted">未発行</td>
+          </tr>
+          <tr>
+            <td class="center"><span class="check checked"></span></td>
+            <td class="code">000675</td>
+            <td class="bold">株式会社 はんない(改井店)</td>
+            <td><span class="format-badge only">請求書のみ</span></td>
+            <td class="td-money">¥23,976</td>
+            <td class="center muted">未発行</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="step-body">
+      <div class="issue-bar">
+        <div class="issue-info">
+          <strong>26社</strong> 分の請求書を発行します(合計 ¥3,507,815)
+        </div>
+        <div class="issue-actions">
+          <button class="issue-btn issue-btn-sub">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+            発行前にプレビュー
+          </button>
+          <button class="issue-btn issue-btn-main">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            請求書をまとめて発行する
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  document.querySelectorAll('.check').forEach(c => {
+    c.addEventListener('click', () => c.classList.toggle('checked'));
+  });
+  document.getElementById('checkAll').addEventListener('click', function() {
+    const on = this.classList.contains('checked');
+    document.querySelectorAll('tbody .check').forEach(c => {
+      c.classList.toggle('checked', on);
+    });
+  });
+</script>
+
+</body>
+</html>

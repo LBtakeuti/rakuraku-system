@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>注文を見る | らくらく受発注システム</title>
+<style>
+:root {
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --primary-light: #dbeafe;
+  --primary-lighter: #eff6ff;
+  --bg-base: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-muted: #f1f5f9;
+  --border-light: #e2e8f0;
+  --border-default: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --success: #059669;
+  --success-light: #d1fae5;
+  --warning: #d97706;
+  --warning-light: #fef3c7;
+  --info: #0284c7;
+  --info-light: #e0f2fe;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', 'BIZ UDPGothic', Meiryo, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--text-primary);
+  background: var(--bg-base);
+  line-height: 1.5;
+}
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+input, select { font-family: inherit; font-size: inherit; }
+a { color: inherit; text-decoration: none; }
+
+.top-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo {
+  width: 36px; height: 36px;
+  background: var(--primary);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+}
+.brand-name { font-size: 18px; font-weight: 700; }
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  background: var(--bg-muted);
+  border-radius: 40px;
+}
+.user-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--primary-light);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+.user-name { font-size: 14px; font-weight: 600; }
+
+.page-bar {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.home-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+.home-btn:hover {
+  background: var(--primary-lighter);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.home-btn svg { width: 18px; height: 18px; }
+.page-title { font-size: 22px; font-weight: 700; }
+
+.content { max-width: 1280px; margin: 0 auto; padding: 32px; }
+
+.action-bar { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.big-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  border: 1px solid transparent;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06);
+  transition: all 0.15s;
+}
+.big-btn svg { width: 20px; height: 20px; }
+.big-btn-primary { background: var(--primary); color: white; }
+.big-btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.25);
+}
+.big-btn-default {
+  background: var(--bg-surface);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+.big-btn-default:hover { background: var(--bg-muted); transform: translateY(-1px); }
+
+.search-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+.search-row { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
+.search-input-wrap { flex: 1; min-width: 280px; position: relative; }
+.search-input-wrap svg {
+  position: absolute;
+  left: 14px; top: 50%;
+  transform: translateY(-50%);
+  width: 18px; height: 18px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.search-input {
+  width: 100%;
+  padding: 12px 16px 12px 42px;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  font-size: 15px;
+  background: var(--bg-surface);
+  outline: none;
+}
+.search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-lighter); }
+
+.filter-chip-row {
+  display: flex; gap: 8px; margin-top: 14px;
+  flex-wrap: wrap; align-items: center;
+}
+.chip-label { font-size: 13px; color: var(--text-muted); margin-right: 4px; }
+.chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--bg-muted);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.chip:hover { background: var(--primary-lighter); color: var(--primary); }
+.chip.active { background: var(--primary); color: white; }
+
+.table-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+.table-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.result-count { font-size: 14px; color: var(--text-secondary); }
+.result-count strong { color: var(--text-primary); font-size: 16px; }
+
+.table-wrapper { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--bg-muted);
+  border-bottom: 1px solid var(--border-light);
+  white-space: nowrap;
+}
+td { padding: 14px 16px; border-bottom: 1px solid var(--border-light); }
+tbody tr { cursor: pointer; transition: background 0.1s; }
+tbody tr:hover { background: var(--primary-lighter); }
+tbody tr:last-child td { border-bottom: none; }
+.code { font-variant-numeric: tabular-nums; color: var(--text-secondary); font-size: 13px; }
+.td-num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-success { background: var(--success-light); color: var(--success); }
+.badge-warning { background: var(--warning-light); color: var(--warning); }
+.badge-info { background: var(--info-light); color: var(--info); }
+
+.row-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--bg-muted);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.row-action:hover { background: var(--primary); color: white; }
+.row-action svg { width: 14px; height: 14px; }
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-light);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.page-controls { display: flex; gap: 6px; align-items: center; }
+.page-btn {
+  padding: 8px 14px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--bg-surface);
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 36px;
+  text-align: center;
+  color: var(--text-primary);
+}
+.page-btn:hover { background: var(--bg-muted); }
+.page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+.page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.bold { font-weight: 600; }
+.muted { color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="brand">
+    <div class="brand-logo">楽</div>
+    <div class="brand-name">らくらく受発注システム</div>
+  </div>
+  <div class="user-chip">
+    <div class="user-avatar">山</div>
+    <div class="user-name">山田 太郎 さん</div>
+  </div>
+</header>
+
+<div class="page-bar">
+  <a href="home.html" class="home-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/>
+    </svg>
+    ホームに戻る
+  </a>
+  <div class="page-title">注文を見る</div>
+</div>
+
+<main class="content">
+
+  <div class="action-bar">
+    <button class="big-btn big-btn-primary" onclick="location.href='order-new.html'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      新しい注文を受ける
+    </button>
+  </div>
+
+  <div class="search-card">
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" class="search-input" placeholder="伝票番号、お客様名で検索...">
+      </div>
+    </div>
+    <div class="filter-chip-row">
+      <span class="chip-label">状態:</span>
+      <button class="chip active">すべて</button>
+      <button class="chip">納品待ち</button>
+      <button class="chip">納品済み</button>
+      <button class="chip">取消し済み</button>
+    </div>
+    <div class="filter-chip-row">
+      <span class="chip-label">期間:</span>
+      <button class="chip">今日</button>
+      <button class="chip active">今週</button>
+      <button class="chip">今月</button>
+      <button class="chip">先月</button>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <div class="result-count"><strong>42</strong> 件の注文があります</div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>伝票番号</th>
+            <th>注文日</th>
+            <th>納品予定日</th>
+            <th>お客様</th>
+            <th class="td-num">金額(税込)</th>
+            <th>状態</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr onclick="location.href='order-new.html'">
+            <td class="code bold">800028791</td>
+            <td>2026/04/24</td>
+            <td>2026/04/26</td>
+            <td class="bold">㈱ニューライフカネタ 米沢金池店</td>
+            <td class="td-num">¥9,636</td>
+            <td><span class="badge badge-warning">納品待ち</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr onclick="location.href='order-new.html'">
+            <td class="code bold">800028790</td>
+            <td>2026/04/24</td>
+            <td>2026/04/24</td>
+            <td class="bold">株式会社タカヨシ</td>
+            <td class="td-num">¥144,144</td>
+            <td><span class="badge badge-success">納品済み</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr onclick="location.href='order-new.html'">
+            <td class="code bold">800028789</td>
+            <td>2026/04/24</td>
+            <td>2026/04/27</td>
+            <td class="bold">㈲矢倉商事</td>
+            <td class="td-num">¥25,300</td>
+            <td><span class="badge badge-warning">納品待ち</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr onclick="location.href='order-new.html'">
+            <td class="code bold">800028788</td>
+            <td>2026/04/23</td>
+            <td>2026/04/23</td>
+            <td class="bold">㈱ニューライフカネタ 米沢金池店</td>
+            <td class="td-num">¥8,760</td>
+            <td><span class="badge badge-success">納品済み</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr onclick="location.href='order-new.html'">
+            <td class="code bold">800028787</td>
+            <td>2026/04/23</td>
+            <td>2026/04/25</td>
+            <td class="bold">株式会社サンプル商会</td>
+            <td class="td-num">¥56,200</td>
+            <td><span class="badge badge-warning">納品待ち</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+          <tr onclick="location.href='order-new.html'">
+            <td class="code bold">800028786</td>
+            <td>2026/04/22</td>
+            <td>2026/04/22</td>
+            <td class="bold">大和商店 本店</td>
+            <td class="td-num">¥32,450</td>
+            <td><span class="badge badge-success">納品済み</span></td>
+            <td>
+              <button class="row-action">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                詳細
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <div>1〜20件 / 42件中</div>
+      <div class="page-controls">
+        <button class="page-btn" disabled>← 前へ</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <button class="page-btn">次へ →</button>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+</body>
+</html>
