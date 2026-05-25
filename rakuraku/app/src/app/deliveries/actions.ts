@@ -9,7 +9,12 @@ import { nextSalesInvoiceNumber } from "@/lib/utils/numbering";
 type SupabaseLike = Awaited<ReturnType<typeof createClient>>;
 
 export type DeliveryActionResult =
-  | { ok: true; invoiceCount: number; invoiceIds: string[] }
+  | {
+      ok: true;
+      invoiceCount: number;
+      invoiceIds: string[];
+      failedOrders: { orderId: string; message: string }[];
+    }
   | {
       ok: false;
       fieldErrors: Record<string, string[] | undefined>;
@@ -312,27 +317,40 @@ export async function confirmDelivery(
   const v = parsed.data;
 
   const supabase = await createClient();
-  const compensations: Compensation[] = [];
   const invoiceIds: string[] = [];
+  const failedOrders: { orderId: string; message: string }[] = [];
 
-  try {
-    for (const orderId of v.orderIds) {
+  // 受注単位で個別に try/catch（失敗した受注のみロールバック、他は成功扱い）
+  for (const orderId of v.orderIds) {
+    const orderCompensations: Compensation[] = [];
+    try {
       const id = await confirmOneOrder(
         supabase,
         orderId,
         v.deliveryDate,
-        compensations
+        orderCompensations
       );
       invoiceIds.push(id);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "納品処理に失敗しました";
+      console.error("[deliveries] order failed, rolling back:", orderId, message, {
+        compensations: orderCompensations.length,
+      });
+      await rollback(supabase, orderCompensations);
+      failedOrders.push({ orderId, message });
     }
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "納品処理に失敗しました";
-    console.error("[deliveries] failed, rolling back:", message, {
-      compensations: compensations.length,
-    });
-    await rollback(supabase, compensations);
-    return { ok: false, fieldErrors: {}, formError: message };
+  }
+
+  if (invoiceIds.length === 0) {
+    return {
+      ok: false,
+      fieldErrors: {},
+      formError:
+        failedOrders.length > 0
+          ? `すべての受注で納品処理に失敗しました。最初のエラー: ${failedOrders[0].message}`
+          : "納品処理に失敗しました",
+    };
   }
 
   revalidatePath("/orders");
