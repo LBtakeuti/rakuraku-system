@@ -1,5 +1,6 @@
 import { TopHeader } from "@/components/common/top-header";
 import { PageBar } from "@/components/common/page-bar";
+import { ResultBanner } from "@/components/common/result-banner";
 import {
   listSalesInvoices,
   getSalesSummary,
@@ -10,6 +11,8 @@ type SearchParams = {
   q?: string;
   period?: string;
   page?: string;
+  invoiced?: string;
+  failed?: string;
 };
 
 export default async function SalesPage({
@@ -35,11 +38,21 @@ export default async function SalesPage({
     getSalesSummary(period),
   ]);
 
+  const invoiced = Math.max(0, Number(sp.invoiced ?? "0") || 0);
+  const failed = Math.max(0, Number(sp.failed ?? "0") || 0);
+
   return (
     <>
       <TopHeader />
       <PageBar title="売上を見る" />
       <main className="mx-auto w-full max-w-[1280px] px-8 py-8">
+        <ResultBanner
+          issued={invoiced}
+          failed={failed}
+          successLabel="件の納品を確定"
+          failedLabel="件で納品失敗"
+          paramKeys={{ issued: "invoiced", failed: "failed" }}
+        />
         <SalesView
           rows={rows}
           total={total}

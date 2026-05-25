@@ -357,5 +357,5 @@ export async function confirmDelivery(
   revalidatePath("/deliveries");
   revalidatePath("/sales");
   revalidatePath("/stocks");
-  redirect("/sales");
+  redirect(`/sales?invoiced=${invoiceIds.length}&failed=${failedOrders.length}`);
 }
