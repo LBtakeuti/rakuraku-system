@@ -2,7 +2,7 @@
 
 import { useActionState, useState, useTransition } from "react";
 import Link from "next/link";
-import { Check, ArrowLeftRight, FileText } from "lucide-react";
+import { Check, ArrowLeftRight, FileText, PackagePlus } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Badge } from "@/components/common/badge";
@@ -132,6 +132,20 @@ export function ReceivingForm({ po }: ReceivingFormProps) {
           </ul>
         </div>
       )}
+
+      <section className="mb-6 flex items-center gap-4 rounded-2xl border border-info bg-info-light px-5 py-4">
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-info text-white">
+          <PackagePlus className="h-6 w-6" strokeWidth={2.5} />
+        </div>
+        <div>
+          <div className="mb-1 text-[15px] font-bold text-info">
+            仕入先からの納品書を見ながら、入荷した数量を入力してください
+          </div>
+          <div className="text-[13px] leading-[1.6] text-info/90">
+            賞味期限のある商品は、ロット番号と賞味期限も入力します。分納の場合（全部届いていない場合）は、届いた分だけ入力してください。残りはあとで追加できます。
+          </div>
+        </div>
+      </section>
 
       <section className="mb-6 rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -292,15 +306,17 @@ export function ReceivingForm({ po }: ReceivingFormProps) {
         </div>
       </section>
 
-      <section className="mb-6 rounded-xl bg-primary-lighter px-5 py-4 text-[14px] text-primary">
+      <section className="mb-6 rounded-xl bg-text-primary px-5 py-4 text-[14px] text-white">
         入荷登録する商品{" "}
-        <strong className="font-bold">{linesWithReceiving}件</strong>
+        <strong className="text-[18px] font-bold text-[#93c5fd]">
+          {linesWithReceiving}件
+        </strong>
         （合計{" "}
-        <strong className="font-bold">
+        <strong className="text-[18px] font-bold text-[#93c5fd]">
           {totalReceiving.toLocaleString("ja-JP")}個
         </strong>{" "}
         / 残り{" "}
-        <strong className="font-bold">
+        <strong className="text-[18px] font-bold text-[#93c5fd]">
           {Math.max(0, totalRemaining - totalReceiving).toLocaleString("ja-JP")}個
         </strong>{" "}
         は次回入荷予定）
@@ -316,7 +332,7 @@ export function ReceivingForm({ po }: ReceivingFormProps) {
         <button
           type="submit"
           disabled={form.formState.isSubmitting}
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(15,23,42,0.06)] transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-xl bg-success px-6 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(5,150,105,0.25)] transition-colors hover:bg-success/90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Check className="h-5 w-5" strokeWidth={2.5} />
           この内容で入荷を確定する

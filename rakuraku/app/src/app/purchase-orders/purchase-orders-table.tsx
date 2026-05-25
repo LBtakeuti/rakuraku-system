@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { Search as SearchIcon, Eye, PackagePlus } from "lucide-react";
+import { Search as SearchIcon, Eye, PackagePlus, PackageCheck } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { TextInput } from "@/components/forms/text-input";
@@ -231,14 +231,25 @@ export function PurchaseOrdersTable({
                     </StatusBadge>
                   </td>
                   <td className="px-4 py-3">
-                    <Link
-                      href={`/purchase-orders/${p.id}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-[13px] font-semibold text-text-primary transition-colors hover:bg-bg-muted"
-                    >
-                      <Eye className="h-3.5 w-3.5" strokeWidth={2} />
-                      詳細
-                    </Link>
+                    {p.status === "ordered" || p.status === "partial" ? (
+                      <Link
+                        href={`/receivings?po=${p.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-success px-3 py-1.5 text-[13px] font-semibold text-white shadow-[0_1px_3px_rgba(5,150,105,0.2)] transition-colors hover:bg-success/90"
+                      >
+                        <PackageCheck className="h-3.5 w-3.5" strokeWidth={2} />
+                        入荷確定
+                      </Link>
+                    ) : (
+                      <Link
+                        href={`/purchase-orders/${p.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-[13px] font-semibold text-text-primary transition-colors hover:bg-bg-muted"
+                      >
+                        <Eye className="h-3.5 w-3.5" strokeWidth={2} />
+                        詳細
+                      </Link>
+                    )}
                   </td>
                 </tr>
               ))}
