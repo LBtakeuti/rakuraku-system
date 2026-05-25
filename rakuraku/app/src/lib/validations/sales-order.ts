@@ -3,6 +3,7 @@ import { z } from "zod";
 const lineSchema = z.object({
   productCode: z.string().trim().min(1, "商品を選んでください"),
   productName: z.string().trim().min(1),
+  productMeta: z.string().optional().default(""),
   quantity: z.coerce
     .number()
     .int("数量は整数で入力してください")

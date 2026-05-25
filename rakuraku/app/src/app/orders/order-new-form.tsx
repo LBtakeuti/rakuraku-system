@@ -3,11 +3,16 @@
 import { useActionState, useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { Check } from "lucide-react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CustomerPicker } from "./customer-picker";
-import { OrderLineEditor, type EditableLine } from "./order-line-editor";
+import { OrderLineEditor, type OrderLineFormRow } from "./order-line-editor";
 import { listDeliveryAddressesAction } from "./client-actions";
 import { createSalesOrder, type SalesOrderActionResult } from "./actions";
-import { salesOrderFormSchema } from "@/lib/validations/sales-order";
+import {
+  salesOrderFormSchema,
+  type SalesOrderFormValues,
+} from "@/lib/validations/sales-order";
 import type { CustomerSearchResult } from "@/lib/supabase/queries/sales-order";
 import type { DeliveryAddressOption } from "@/types/sales-order";
 
@@ -28,6 +33,8 @@ function addDaysIso(iso: string, days: number): string {
   return `${y}-${m}-${day}`;
 }
 
+type FormValues = SalesOrderFormValues;
+
 export function OrderNewForm() {
   const [state, formAction] = useActionState<
     SalesOrderActionResult | null,
@@ -37,17 +44,35 @@ export function OrderNewForm() {
 
   const [customer, setCustomer] = useState<CustomerSearchResult | null>(null);
   const [deliveryAddresses, setDeliveryAddresses] = useState<DeliveryAddressOption[]>([]);
-  const [deliveryAddressId, setDeliveryAddressId] = useState("");
-  const [orderDate, setOrderDate] = useState<string>(todayIso());
-  const [deliveryDate, setDeliveryDate] = useState<string>(addDaysIso(todayIso(), 2));
-  const [note, setNote] = useState("");
-  const [lines, setLines] = useState<EditableLine[]>([]);
-  const [clientErrors, setClientErrors] = useState<string[]>([]);
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(salesOrderFormSchema),
+    mode: "onSubmit",
+    defaultValues: {
+      customerCode: "",
+      deliveryAddressId: "",
+      orderDate: todayIso(),
+      deliveryDate: addDaysIso(todayIso(), 2),
+      note: "",
+      lines: [],
+    },
+  });
+
+  const fieldArray = useFieldArray({
+    control: form.control,
+    name: "lines",
+  });
+
+  const watchedCustomerCode = form.watch("customerCode");
+  const watchedDeliveryAddressId = form.watch("deliveryAddressId");
+  const watchedOrderDate = form.watch("orderDate");
+  const watchedDeliveryDate = form.watch("deliveryDate");
+  const watchedNote = form.watch("note");
 
   useEffect(() => {
     if (!customer) {
       setDeliveryAddresses([]);
-      setDeliveryAddressId("");
+      form.setValue("deliveryAddressId", "");
       return;
     }
     let cancelled = false;
@@ -57,28 +82,41 @@ export function OrderNewForm() {
         if (cancelled) return;
         setDeliveryAddresses(list);
         const def = list.find((a) => a.isDefault);
-        setDeliveryAddressId(def?.id ?? "");
+        form.setValue("deliveryAddressId", def?.id ?? "");
       } catch {
         if (!cancelled) {
           setDeliveryAddresses([]);
-          setDeliveryAddressId("");
+          form.setValue("deliveryAddressId", "");
         }
       }
     })();
     return () => {
       cancelled = true;
     };
+    // form は安定なので依存に含めない
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const validLines = lines.filter((l) => l.productCode && l.quantity > 0);
+  const handleCustomerSelect = (c: CustomerSearchResult) => {
+    setCustomer(c);
+    form.setValue("customerCode", c.customerCode, { shouldValidate: true });
+  };
+
+  const handleCustomerClear = () => {
+    setCustomer(null);
+    form.setValue("customerCode", "");
+  };
+
+  const onValid = (values: FormValues) => {
+    const validLines = (values.lines as OrderLineFormRow[]).filter(
+      (l) => l.productCode && l.quantity > 0
+    );
     const payload = {
-      customerCode: customer?.customerCode ?? "",
-      deliveryAddressId,
-      orderDate,
-      deliveryDate,
-      note,
+      customerCode: values.customerCode,
+      deliveryAddressId: values.deliveryAddressId ?? "",
+      orderDate: values.orderDate,
+      deliveryDate: values.deliveryDate,
+      note: values.note ?? "",
       lines: validLines.map((l) => ({
         productCode: l.productCode,
         productName: l.productName,
@@ -88,12 +126,6 @@ export function OrderNewForm() {
         orderType: l.orderType,
       })),
     };
-    const result = salesOrderFormSchema.safeParse(payload);
-    if (!result.success) {
-      setClientErrors(result.error.issues.map((i) => i.message));
-      return;
-    }
-    setClientErrors([]);
     const fd = new FormData();
     fd.set("payload", JSON.stringify(payload));
     startTransition(() => formAction(fd));
@@ -104,37 +136,41 @@ export function OrderNewForm() {
     state && !state.ok
       ? Object.values(state.fieldErrors).flatMap((e) => e ?? [])
       : [];
-  const errors = [...clientErrors, ...fieldErrors, formError].filter(
-    (e): e is string => !!e
+  const clientErrorMessages = Object.values(form.formState.errors)
+    .map((e) => (typeof e?.message === "string" ? e.message : null))
+    .filter((m): m is string => !!m);
+  const linesError = form.formState.errors.lines?.message;
+  if (typeof linesError === "string") clientErrorMessages.push(linesError);
+
+  const allErrors = Array.from(
+    new Set(
+      [...clientErrorMessages, ...fieldErrors, formError].filter(
+        (e): e is string => !!e
+      )
+    )
   );
 
   return (
-    <form onSubmit={handleSubmit}>
-      {errors.length > 0 && (
+    <form onSubmit={form.handleSubmit(onValid)}>
+      {allErrors.length > 0 && (
         <div className="mb-6 rounded-xl border border-danger bg-danger-light px-4 py-3 text-[14px] font-semibold text-danger">
           <ul className="list-disc pl-5">
-            {Array.from(new Set(errors)).map((e, i) => (
+            {allErrors.map((e, i) => (
               <li key={i}>{e}</li>
             ))}
           </ul>
         </div>
       )}
 
-      <SectionCard
-        num={1}
-        title="どのお客様からの注文ですか？"
-      >
+      <SectionCard num={1} title="どのお客様からの注文ですか？">
         <CustomerPicker
           selected={customer}
-          onSelect={(c) => setCustomer(c)}
-          onClear={() => setCustomer(null)}
+          onSelect={handleCustomerSelect}
+          onClear={handleCustomerClear}
         />
       </SectionCard>
 
-      <SectionCard
-        num={2}
-        title="注文の日付と納品日"
-      >
+      <SectionCard num={2} title="注文の日付と納品日">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
             <div className="mb-1.5 text-[13px] font-semibold text-text-secondary">
@@ -142,8 +178,8 @@ export function OrderNewForm() {
             </div>
             <input
               type="date"
-              value={orderDate}
-              onChange={(e) => setOrderDate(e.target.value)}
+              {...form.register("orderDate")}
+              defaultValue={watchedOrderDate}
               className="w-full rounded-[10px] border border-border-default bg-bg-surface px-3.5 py-2.5 text-[15px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
@@ -153,8 +189,8 @@ export function OrderNewForm() {
             </div>
             <input
               type="date"
-              value={deliveryDate}
-              onChange={(e) => setDeliveryDate(e.target.value)}
+              {...form.register("deliveryDate")}
+              defaultValue={watchedDeliveryDate}
               className="w-full rounded-[10px] border border-border-default bg-bg-surface px-3.5 py-2.5 text-[15px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
@@ -163,13 +199,15 @@ export function OrderNewForm() {
               届け先
             </div>
             <select
-              value={deliveryAddressId}
-              onChange={(e) => setDeliveryAddressId(e.target.value)}
+              value={watchedDeliveryAddressId ?? ""}
+              onChange={(e) =>
+                form.setValue("deliveryAddressId", e.target.value)
+              }
               className="w-full appearance-none rounded-[10px] border border-border-default bg-bg-surface px-3.5 py-2.5 text-[15px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-              disabled={!customer}
+              disabled={!watchedCustomerCode}
             >
               <option value="">
-                {customer ? "お客様の本社" : "お客様を選んでください"}
+                {watchedCustomerCode ? "お客様の本社" : "お客様を選んでください"}
               </option>
               {deliveryAddresses.map((a) => (
                 <option key={a.id} value={a.id}>
@@ -183,14 +221,22 @@ export function OrderNewForm() {
       </SectionCard>
 
       <SectionCard num={3} title="注文する商品を選んでください">
-        <OrderLineEditor lines={lines} onChange={setLines} />
+        <OrderLineEditor
+          fields={fieldArray.fields}
+          append={fieldArray.append}
+          remove={fieldArray.remove}
+          control={form.control}
+          setValue={form.setValue}
+          watch={form.watch}
+          getValues={form.getValues}
+        />
       </SectionCard>
 
       <SectionCard num={4} title="メモ（任意）">
         <input
           type="text"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
+          value={watchedNote ?? ""}
+          onChange={(e) => form.setValue("note", e.target.value)}
           placeholder="お客様への伝言や、社内メモを書けます"
           className="w-full rounded-[10px] border border-border-default bg-bg-surface px-3.5 py-2.5 text-[15px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
@@ -205,7 +251,8 @@ export function OrderNewForm() {
         </Link>
         <button
           type="submit"
-          className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(15,23,42,0.06)] transition-colors hover:bg-primary-hover"
+          disabled={form.formState.isSubmitting}
+          className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(15,23,42,0.06)] transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Check className="h-5 w-5" strokeWidth={2.5} />
           この内容で注文を確定する
