@@ -19,12 +19,15 @@ vi.mock("@/lib/utils/numbering", () => ({
   nextPurchaseOrderNumber: vi.fn(async () => "P00000001"),
 }));
 // findFifoLots はテストごとに別実装を入れる。デフォルトは「在庫なし」。
-const findFifoLotsMock = vi.fn(async (_code: string) => [] as Array<{
+type FifoLot = {
   productStockId: string;
   available: number;
   expiryDate: string | null;
   lotNo: string | null;
-}>);
+};
+const findFifoLotsMock = vi.fn<(code: string) => Promise<FifoLot[]>>(
+  async () => []
+);
 vi.mock("@/lib/supabase/queries/sales-order", () => ({
   findFifoLots: (code: string) => findFifoLotsMock(code),
 }));
