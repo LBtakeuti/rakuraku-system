@@ -189,12 +189,13 @@ describe("createSalesOrder（FIFO 引当）", () => {
 
     // sales_order INSERT, sales_order_line INSERT, allocation INSERT,
     // product_stock SELECT(single), product_stock UPDATE, stock_movement INSERT
+    // FB-RBK-001 補償処理対応で allocation / stock_movement にも .select("id").single() が付くため id を返す。
     const sb = createSupabaseMock({
       sales_order: { data: { id: "so-1" } },
       sales_order_line: { data: { id: "sol-1" } },
-      sales_order_line_allocation: { data: null, error: null },
+      sales_order_line_allocation: { data: { id: "alloc-1" } },
       product_stock: { data: { quantity_allocated: 0 } },
-      stock_movement: { data: null, error: null },
+      stock_movement: { data: { id: "mv-1" } },
     });
     mockedCreate.mockResolvedValue(sb as never);
 
@@ -263,12 +264,18 @@ describe("createSalesOrder（FIFO 引当）", () => {
     const sb = createSupabaseMock({
       sales_order: { data: { id: "so-1" } },
       sales_order_line: { data: { id: "sol-1" } },
-      sales_order_line_allocation: { data: null, error: null },
+      sales_order_line_allocation: [
+        { data: { id: "alloc-1" } } as MockResponse,
+        { data: { id: "alloc-2" } } as MockResponse,
+      ],
       product_stock: [
         { data: { quantity_allocated: 0 } } as MockResponse,
         { data: { quantity_allocated: 5 } } as MockResponse,
       ],
-      stock_movement: { data: null, error: null },
+      stock_movement: [
+        { data: { id: "mv-1" } } as MockResponse,
+        { data: { id: "mv-2" } } as MockResponse,
+      ],
     });
     mockedCreate.mockResolvedValue(sb as never);
 
@@ -325,9 +332,9 @@ describe("createSalesOrder（FIFO 引当）", () => {
     const sb = createSupabaseMock({
       sales_order: { data: { id: "so-1" } },
       sales_order_line: { data: { id: "sol-1" } },
-      sales_order_line_allocation: { data: null, error: null },
+      sales_order_line_allocation: { data: { id: "alloc-1" } },
       product_stock: { data: { quantity_allocated: 0 } },
-      stock_movement: { data: null, error: null },
+      stock_movement: { data: { id: "mv-1" } },
     });
     mockedCreate.mockResolvedValue(sb as never);
 
@@ -415,7 +422,10 @@ describe("createSalesOrder（order_at_sale 自動発注）", () => {
         ],
       },
       purchase_order: { data: { id: "po-1" } },
-      purchase_order_line: { data: null, error: null },
+      purchase_order_line: [
+        { data: { id: "pol-1" } } as MockResponse,
+        { data: { id: "pol-2" } } as MockResponse,
+      ],
     });
     mockedCreate.mockResolvedValue(sb as never);
 
@@ -488,7 +498,10 @@ describe("createSalesOrder（order_at_sale 自動発注）", () => {
         { data: { id: "po-1" } },
         { data: { id: "po-2" } },
       ],
-      purchase_order_line: { data: null, error: null },
+      purchase_order_line: [
+        { data: { id: "pol-1" } } as MockResponse,
+        { data: { id: "pol-2" } } as MockResponse,
+      ],
     });
     mockedCreate.mockResolvedValue(sb as never);
 
@@ -625,5 +638,113 @@ describe("createSalesOrder（採番呼び出し順序）", () => {
     const inserts = sb._calls.insert.map((c) => c.table);
     expect(inserts[0]).toBe("sales_order");
     expect(inserts[1]).toBe("sales_order_line");
+  });
+});
+
+describe("createSalesOrder（補償処理 / rollback）", () => {
+  it("明細 INSERT で error が返ると sales_order に対して delete が呼ばれ formError が返る", async () => {
+    const sb = createSupabaseMock({
+      sales_order: { data: { id: "so-1" } },
+      // 明細 insert で error を返す
+      sales_order_line: { data: null, error: { message: "明細 INSERT 失敗" } },
+    });
+    mockedCreate.mockResolvedValue(sb as never);
+
+    const payload = {
+      ...validBase,
+      lines: [
+        {
+          productCode: "00000001",
+          productName: "A",
+          quantity: 1,
+          unitPrice: 100,
+          taxRate: 0.1,
+          orderType: "manual_order",
+        },
+      ],
+    };
+
+    const result = await createSalesOrder(null, makeFormData(payload));
+    expect(result).toEqual({
+      ok: false,
+      fieldErrors: {},
+      formError: "明細 INSERT 失敗",
+    });
+
+    // sales_order ヘッダは INSERT 済みなので、補償で delete が走る
+    const soDeletes = sb._calls.delete.filter((c) => c.table === "sales_order");
+    expect(soDeletes).toHaveLength(1);
+    // redirect は呼ばれない
+    expect(mockedRedirect).not.toHaveBeenCalled();
+  });
+
+  it("引当 INSERT で error が返ると、ヘッダ・明細・先に作った allocation/movement が逆順で delete される", async () => {
+    findFifoLotsMock.mockImplementation(async () => [
+      {
+        productStockId: "ls-1",
+        available: 50,
+        expiryDate: null,
+        lotNo: null,
+      },
+      {
+        productStockId: "ls-2",
+        available: 50,
+        expiryDate: null,
+        lotNo: null,
+      },
+    ]);
+
+    // 1 回目の allocation insert は成功、2 回目で error
+    const sb = createSupabaseMock({
+      sales_order: { data: { id: "so-1" } },
+      sales_order_line: { data: { id: "sol-1" } },
+      sales_order_line_allocation: [
+        { data: { id: "alloc-1" } } as MockResponse,
+        { data: null, error: { message: "引当 INSERT 失敗" } } as MockResponse,
+      ],
+      product_stock: { data: { quantity_allocated: 0 } },
+      stock_movement: { data: { id: "mv-1" } },
+    });
+    mockedCreate.mockResolvedValue(sb as never);
+
+    const payload = {
+      ...validBase,
+      lines: [
+        {
+          productCode: "00000001",
+          productName: "A",
+          quantity: 80, // 50 + 30 で 2 ロット消費
+          unitPrice: 100,
+          taxRate: 0.1,
+          orderType: "stock",
+        },
+      ],
+    };
+
+    const result = await createSalesOrder(null, makeFormData(payload));
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.formError).toBe("引当 INSERT 失敗");
+    }
+
+    // 期待する補償（逆順）:
+    //   delete-movement (mv-1) / restore-stock-allocated は update / delete-allocation (alloc-1)
+    //   / delete-sales-order-line (sol-1) / delete-sales-order (so-1)
+    const deletes = sb._calls.delete.map((c) => c.table);
+    expect(deletes).toContain("stock_movement");
+    expect(deletes).toContain("sales_order_line_allocation");
+    expect(deletes).toContain("sales_order_line");
+    expect(deletes).toContain("sales_order");
+
+    // restore-stock-allocated は product_stock を quantity_allocated:0（previousAllocated）に戻す UPDATE
+    const restoreUpdates = sb._calls.update.filter(
+      (c) => c.table === "product_stock"
+    );
+    // 1 回目: take 加算 / 2 回目: 補償で 0 に戻す
+    expect(restoreUpdates.length).toBeGreaterThanOrEqual(2);
+    const last = restoreUpdates.at(-1)!.payload as Record<string, unknown>;
+    expect(last.quantity_allocated).toBe(0);
+
+    expect(mockedRedirect).not.toHaveBeenCalled();
   });
 });

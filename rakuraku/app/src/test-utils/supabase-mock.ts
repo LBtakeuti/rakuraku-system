@@ -37,6 +37,7 @@ export function createSupabaseMock(tables: Record<string, TableQueue> = {}) {
   const fromCalls: { table: string }[] = [];
   const insertCalls: { table: string; payload: unknown }[] = [];
   const updateCalls: { table: string; payload: unknown }[] = [];
+  const deleteCalls: { table: string }[] = [];
 
   function from(table: string) {
     fromCalls.push({ table });
@@ -62,7 +63,10 @@ export function createSupabaseMock(tables: Record<string, TableQueue> = {}) {
       updateCalls.push({ table, payload });
       return chain;
     });
-    chain.delete = vi.fn(passthrough);
+    chain.delete = vi.fn(() => {
+      deleteCalls.push({ table });
+      return chain;
+    });
     chain.upsert = vi.fn(passthrough);
     chain.eq = vi.fn(passthrough);
     chain.in = vi.fn(passthrough);
@@ -127,7 +131,12 @@ export function createSupabaseMock(tables: Record<string, TableQueue> = {}) {
   return {
     from,
     // テスト側で参照できる呼び出し履歴
-    _calls: { from: fromCalls, insert: insertCalls, update: updateCalls },
+    _calls: {
+      from: fromCalls,
+      insert: insertCalls,
+      update: updateCalls,
+      delete: deleteCalls,
+    },
   };
 }
 
