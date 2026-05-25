@@ -130,7 +130,7 @@ describe("confirmDelivery（ハッピーパス：単一受注 + 引当 1 件）"
       deliveryDate: "2026-05-22",
     };
     await expect(confirmDelivery(null, makeFormData(payload))).rejects.toThrow(
-      /__REDIRECT__:\/sales/
+      /__REDIRECT__:\/sales\?invoiced=1&failed=0/
     );
 
     // sales_invoice INSERT の集計値
@@ -194,7 +194,7 @@ describe("confirmDelivery（ハッピーパス：単一受注 + 引当 1 件）"
       "fulfilled"
     );
 
-    expect(mockedRedirect).toHaveBeenCalledWith("/sales");
+    expect(mockedRedirect).toHaveBeenCalledWith("/sales?invoiced=1&failed=0");
   });
 
   it("引当が無い受注（order_at_sale/manual_order のみ）：在庫操作はスキップ、status='fulfilled' まで進む", async () => {
@@ -420,7 +420,7 @@ describe("confirmDelivery（補償処理 / rollback）", () => {
           deliveryDate: "2026-05-22",
         })
       )
-    ).rejects.toThrow(/__REDIRECT__:\/sales/);
+    ).rejects.toThrow(/__REDIRECT__:\/sales\?invoiced=1&failed=1/);
 
     // 1 件目は invoice 作成成功 → そのまま残る。2 件目は invoice 作成後に在庫不足で補償（delete）
     const invDeletes = sb._calls.delete.filter(
