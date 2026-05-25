@@ -16,9 +16,15 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/lib/utils/numbering", () => ({
   nextBillingNumber: vi.fn(async () => "B202605001"),
 }));
-const aggregateMock = vi.fn(async (..._args: unknown[]) => [] as BillingSummaryRow[]);
+type AggregateFn = (
+  closingDay: number,
+  periodFrom: string,
+  periodTo: string
+) => Promise<BillingSummaryRow[]>;
+const aggregateMock = vi.fn<AggregateFn>(async () => []);
 vi.mock("@/lib/supabase/queries/billing", () => ({
-  aggregateBillingForPeriod: (...args: unknown[]) => aggregateMock(...args),
+  aggregateBillingForPeriod: ((closingDay, periodFrom, periodTo) =>
+    aggregateMock(closingDay, periodFrom, periodTo)) satisfies AggregateFn,
 }));
 
 import { createClient } from "@/lib/supabase/server";
