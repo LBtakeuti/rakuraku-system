@@ -112,16 +112,15 @@ export function OrderLineEditor({
 
   return (
     <div>
-      <div className="mb-3 flex flex-wrap gap-3 text-[12px] text-text-secondary">
-        <span className="inline-flex items-center gap-1 rounded bg-bg-muted px-2 py-1">
-          数量入力中に <Kbd>↓</Kbd> で新しい行
-        </span>
-        <span className="inline-flex items-center gap-1 rounded bg-bg-muted px-2 py-1">
-          商品名を入力して候補から選ぶ
-        </span>
-      </div>
-
-      <div className="overflow-x-auto rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <div className="overflow-hidden rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+        <div className="flex flex-wrap items-center gap-4 border-b border-border-light bg-primary-lighter px-4 py-2.5 text-[12px] font-semibold text-primary">
+          <span className="inline-flex items-center gap-1">
+            数量入力中に <Kbd>↓</Kbd> で新しい行
+          </span>
+          <span className="inline-flex items-center gap-1">
+            商品名を入力して候補から選ぶ
+          </span>
+        </div>
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-border-light bg-bg-muted text-[12px] font-semibold text-text-secondary">
@@ -153,9 +152,9 @@ export function OrderLineEditor({
           <button
             type="button"
             onClick={addRow}
-            className="inline-flex items-center gap-2 rounded-lg border border-border-default bg-bg-surface px-4 py-2 text-[14px] font-semibold text-text-primary transition-colors hover:bg-bg-muted"
+            className="flex w-full items-center justify-center gap-2 rounded-[10px] border-2 border-dashed border-[#93c5fd] bg-primary-lighter px-4 py-3.5 text-[15px] font-bold text-primary transition-all hover:-translate-y-px hover:border-primary hover:bg-[#c7e0ff] hover:shadow-[0_4px_12px_rgba(29,78,216,0.15)]"
           >
-            <Plus className="h-4 w-4" strokeWidth={2.5} />
+            <Plus className="h-5 w-5" strokeWidth={2.5} />
             商品の行を追加する
           </button>
         </div>
@@ -236,7 +235,7 @@ function Totals({ watch }: { watch: UseFormWatch<SalesOrderFormValues> }) {
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border border-border-default bg-bg-surface px-1 text-[11px] font-bold text-text-primary">
+    <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded border border-primary-light bg-bg-surface px-1 text-[11px] font-bold text-primary">
       {children}
     </span>
   );
