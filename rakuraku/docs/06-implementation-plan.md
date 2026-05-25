@@ -18,7 +18,7 @@ AIエージェントがこのシステムを実装する順序を定義する。
 
 ### 完了の確認
 - 空のホームページが表示される。
-- Supabase に16テーブルができている。
+- Supabase に19テーブルができている（`supabase/schema.sql` の `CREATE TABLE` 全件）。
 - Tailwind でメインカラー `#1d4ed8` が使える。
 
 ---
