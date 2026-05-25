@@ -14,6 +14,19 @@ create extension if not exists "uuid-ossp";
 -- マスター系
 -- =============================================================================
 
+-- 自社情報（帳票の発行元）
+create table company_setting (
+  id int primary key default 1 check (id = 1),
+  company_name text not null,
+  registration_no text not null,
+  postal_code text not null,
+  address text not null,
+  tel text not null,
+  fax text,
+  bank_info text not null,
+  updated_at timestamptz not null default now()
+);
+
 -- 倉庫
 create table warehouse (
   id uuid primary key default uuid_generate_v4(),
@@ -420,6 +433,9 @@ begin
 end;
 $$ language plpgsql;
 
+create trigger tg_company_setting_updated before update on company_setting
+  for each row execute function set_updated_at();
+
 create trigger tg_customer_updated before update on customer
   for each row execute function set_updated_at();
 
@@ -441,6 +457,20 @@ create trigger tg_purchase_order_updated before update on purchase_order
 -- =============================================================================
 -- 初期データ
 -- =============================================================================
+
+-- 自社情報（株式会社プロスパ）
+insert into company_setting (
+  id, company_name, registration_no, postal_code, address, tel, fax, bank_info
+) values (
+  1,
+  '株式会社プロスパ',
+  'T6011801020915',
+  '121-0831',
+  '東京都足立区舎人5-16-10',
+  '03-5856-8263',
+  '03-5856-8273',
+  '三菱UFJ銀行／千住支店 普通預金 4814091'
+);
 
 -- 既定倉庫(必須)
 insert into warehouse (name, is_default) values ('本社倉庫', true);
