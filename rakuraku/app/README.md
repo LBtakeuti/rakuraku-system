@@ -34,3 +34,24 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## ビルドのトラブルシューティング
+
+### 初回 `npm run build` が webpack-runtime 内部エラーで失敗する場合
+
+症状例: `Generating static pages (X/Y)` の途中で以下のようなエラーが出てビルドが落ちる。
+
+```
+TypeError: a[d] is not a function
+    at .next/server/webpack-runtime.js:...
+```
+
+これは Next.js 15 のインクリメンタルビルドキャッシュ（`.next/`）が、リファクタや一覧画面の共通基盤変更などのタイミングで古い chunks を参照したまま残ることに起因する一過性事象。コード自体には問題ない。
+
+**対処**: `.next/` を削除してクリーンビルドする。
+
+```bash
+rm -rf .next && npm run build
+```
+
+通常運用ではインクリメンタルビルドの利点を活かすため `build` スクリプトに自動削除は組み込んでいない。再現性が高い場合はフェーズ8（仕上げ）で根本対応の要否を判断する。
