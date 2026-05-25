@@ -1,22 +1,27 @@
 import { cn } from "@/lib/utils";
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, ReactNode } from "react";
 
-type BadgeVariant = "success" | "warning" | "danger" | "info" | "muted";
+type BadgeVariant = "required" | "optional" | "default";
 
 type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
   variant?: BadgeVariant;
+  children?: ReactNode;
 };
 
 const variantStyles: Record<BadgeVariant, string> = {
-  success: "bg-success-light text-success",
-  warning: "bg-warning-light text-warning",
-  danger: "bg-danger-light text-danger",
-  info: "bg-info-light text-info",
-  muted: "bg-bg-muted text-text-secondary",
+  required: "bg-danger-light text-danger",
+  optional: "bg-bg-muted text-text-secondary",
+  default: "bg-primary-lighter text-primary",
+};
+
+const defaultLabel: Record<BadgeVariant, string> = {
+  required: "必須",
+  optional: "任意",
+  default: "",
 };
 
 export function Badge({
-  variant = "muted",
+  variant = "default",
   className,
   children,
   ...rest
@@ -24,13 +29,13 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-xl px-2.5 py-1 text-xs font-semibold",
+        "inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold leading-none",
         variantStyles[variant],
         className
       )}
       {...rest}
     >
-      {children}
+      {children ?? defaultLabel[variant]}
     </span>
   );
 }

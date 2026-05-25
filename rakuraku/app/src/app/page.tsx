@@ -1,15 +1,17 @@
+import {
+  FilePlus2,
+  PackageCheck,
+  PackagePlus,
+  Search,
+  Boxes,
+  ClipboardList,
+  Users,
+  Package,
+  JapaneseYen,
+  FileText,
+} from "lucide-react";
 import { TopHeader } from "@/components/common/top-header";
-import { HomeActionCard } from "@/components/common/home-action-card";
-
-const svgProps = {
-  viewBox: "0 0 24 24",
-  fill: "none" as const,
-  stroke: "currentColor" as const,
-  strokeWidth: 2,
-  strokeLinecap: "round" as const,
-  strokeLinejoin: "round" as const,
-  "aria-hidden": true,
-};
+import { BigButton } from "@/components/common/big-button";
 
 export default function HomePage() {
   return (
@@ -25,9 +27,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 min-[600px]:grid-cols-2 min-[760px]:gap-5 min-[1100px]:grid-cols-3 min-[1280px]:grid-cols-5">
+        <div className="grid grid-cols-1 gap-4 min-[601px]:grid-cols-2 min-[601px]:gap-5 min-[761px]:grid-cols-3 min-[1101px]:grid-cols-5">
           {/* 上段: 日々の作業 + 確認 */}
-          <HomeActionCard
+          <BigButton
             href="/orders/new"
             color="blue"
             title="注文を受ける"
@@ -38,16 +40,9 @@ export default function HomePage() {
                 登録します
               </>
             }
-            icon={
-              <svg {...svgProps}>
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="18" x2="12" y2="12" />
-                <line x1="9" y1="15" x2="15" y2="15" />
-              </svg>
-            }
+            icon={FilePlus2}
           />
-          <HomeActionCard
+          <BigButton
             href="/deliveries"
             color="green"
             title="納品する"
@@ -58,14 +53,9 @@ export default function HomePage() {
                 売上を計上します
               </>
             }
-            icon={
-              <svg {...svgProps}>
-                <polyline points="9 11 12 14 22 4" />
-                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-              </svg>
-            }
+            icon={PackageCheck}
           />
-          <HomeActionCard
+          <BigButton
             href="/receivings"
             color="amber"
             title="入荷を登録する"
@@ -76,15 +66,9 @@ export default function HomePage() {
                 在庫に追加します
               </>
             }
-            icon={
-              <svg {...svgProps}>
-                <path d="M16 16l-4 4-4-4" />
-                <path d="M12 20V8" />
-                <path d="M21 12V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6" />
-              </svg>
-            }
+            icon={PackagePlus}
           />
-          <HomeActionCard
+          <BigButton
             href="/orders"
             color="orange"
             title="注文を見る"
@@ -95,14 +79,9 @@ export default function HomePage() {
                 検索・確認します
               </>
             }
-            icon={
-              <svg {...svgProps}>
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            }
+            icon={Search}
           />
-          <HomeActionCard
+          <BigButton
             href="/stocks"
             color="indigo"
             title="在庫を見る"
@@ -113,18 +92,11 @@ export default function HomePage() {
                 賞味期限を確認します
               </>
             }
-            icon={
-              <svg {...svgProps}>
-                <path d="M20.91 8.84L8.56 2.23a1.93 1.93 0 0 0-1.81 0L3.1 4.13a2.12 2.12 0 0 0-.05 3.69l12.22 6.93a2 2 0 0 0 1.94 0L21 12.51a2.12 2.12 0 0 0-.09-3.67z" />
-                <path d="M3.09 8.84v12.16L12 24" />
-                <path d="M20.91 8.84v12.16L12 24" />
-                <path d="M12 13.18v10.82" />
-              </svg>
-            }
+            icon={Boxes}
           />
 
           {/* 下段: マスター・実績・請求 */}
-          <HomeActionCard
+          <BigButton
             href="/purchase-orders"
             color="rose"
             title="発注を見る"
@@ -135,17 +107,9 @@ export default function HomePage() {
                 確認します
               </>
             }
-            icon={
-              <svg {...svgProps}>
-                <path
-                  d="M9 11H1l8-8 8 8h-8v10z"
-                  transform="rotate(180 9 12)"
-                />
-                <line x1="1" y1="22" x2="17" y2="22" />
-              </svg>
-            }
+            icon={ClipboardList}
           />
-          <HomeActionCard
+          <BigButton
             href="/customers"
             color="purple"
             title="お客様を管理する"
@@ -156,16 +120,9 @@ export default function HomePage() {
                 追加・変更します
               </>
             }
-            icon={
-              <svg {...svgProps}>
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-            }
+            icon={Users}
           />
-          <HomeActionCard
+          <BigButton
             href="/products"
             color="teal"
             title="商品を管理する"
@@ -176,15 +133,9 @@ export default function HomePage() {
                 追加・変更します
               </>
             }
-            icon={
-              <svg {...svgProps}>
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                <line x1="12" y1="22.08" x2="12" y2="12" />
-              </svg>
-            }
+            icon={Package}
           />
-          <HomeActionCard
+          <BigButton
             href="/sales"
             color="pink"
             title="売上を見る"
@@ -195,14 +146,9 @@ export default function HomePage() {
                 記録を確認します
               </>
             }
-            icon={
-              <svg {...svgProps}>
-                <line x1="12" y1="1" x2="12" y2="23" />
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              </svg>
-            }
+            icon={JapaneseYen}
           />
-          <HomeActionCard
+          <BigButton
             href="/billing"
             color="violet"
             title="請求の業務"
@@ -213,14 +159,7 @@ export default function HomePage() {
                 請求書を発行します
               </>
             }
-            icon={
-              <svg {...svgProps}>
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="16" y1="13" x2="8" y2="13" />
-                <line x1="16" y1="17" x2="8" y2="17" />
-              </svg>
-            }
+            icon={FileText}
           />
         </div>
       </main>
