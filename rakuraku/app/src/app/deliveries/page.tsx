@@ -1,5 +1,33 @@
-import { PlaceholderPage } from "@/components/common/placeholder-page";
+import { TopHeader } from "@/components/common/top-header";
+import { PageBar } from "@/components/common/page-bar";
+import { listDeliverableOrders } from "@/lib/supabase/queries/delivery";
+import { DeliveriesView } from "./deliveries-view";
 
-export default function DeliveriesPage() {
-  return <PlaceholderPage title="納品する" />;
+type SearchParams = {
+  q?: string;
+  range?: string;
+};
+
+export default async function DeliveriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const sp = await searchParams;
+  const range = (
+    sp.range === "today" || sp.range === "all" ? sp.range : "this_week"
+  ) as "today" | "this_week" | "all";
+  const query = sp.q?.trim() ?? "";
+
+  const orders = await listDeliverableOrders({ query, range });
+
+  return (
+    <>
+      <TopHeader />
+      <PageBar title="納品する" />
+      <main className="mx-auto w-full max-w-[1280px] px-8 py-8">
+        <DeliveriesView orders={orders} query={query} range={range} />
+      </main>
+    </>
+  );
 }
