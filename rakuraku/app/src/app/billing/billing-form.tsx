@@ -128,6 +128,20 @@ export function BillingForm({
         </div>
       )}
 
+      <section className="mb-6 flex items-center gap-4 rounded-2xl border border-[#d8b4fe] bg-[#f3e8ff] px-5 py-4">
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-[#7e22ce] text-white">
+          <FileText className="h-6 w-6" strokeWidth={2.5} />
+        </div>
+        <div>
+          <div className="mb-1 text-[15px] font-bold text-[#7e22ce]">
+            月に一度の請求のお仕事です
+          </div>
+          <div className="text-[13px] leading-[1.6] text-[#6b21a8]">
+            上から順に、1→2→3 と進めてください。まず締める期間を決めて、内容を確認し、最後に請求書を発行します。
+          </div>
+        </div>
+      </section>
+
       <StepCard
         num={1}
         title="締める期間を決める"
@@ -383,7 +397,7 @@ export function BillingForm({
                         <td className="px-3 py-3 font-bold">{s.customerName}</td>
                         <td className="px-3 py-3">
                           {s.invoiceFormat === "invoice_only" ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-md bg-primary-lighter px-2.5 py-1 text-[12px] font-semibold text-primary">
+                            <span className="inline-flex items-center gap-1.5 rounded-md bg-info-light px-2.5 py-1 text-[12px] font-semibold text-info">
                               <FileText className="h-3.5 w-3.5" strokeWidth={2} />
                               請求書のみ
                             </span>
@@ -410,14 +424,14 @@ export function BillingForm({
             <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-text-primary px-6 py-4 text-white">
               <div className="flex flex-wrap items-center gap-4 text-[15px] font-semibold">
                 <span>
-                  <strong className="text-[18px] font-bold text-[#93c5fd]">
+                  <strong className="text-[18px] font-bold text-[#c4b5fd]">
                     {selected.size}社
                   </strong>{" "}
                   に請求書を発行
                 </span>
                 <span className="font-mono tabular-nums">
                   合計{" "}
-                  <strong className="text-[18px] font-bold text-[#93c5fd]">
+                  <strong className="text-[18px] font-bold text-[#c4b5fd]">
                     {formatYen(grandTotal)}
                   </strong>
                 </span>
