@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { receivingFormSchema } from "@/lib/validations/receiving";
 
+type SupabaseLike = Awaited<ReturnType<typeof createClient>>;
+
 export type ReceivingActionResult =
   | { ok: true; purchaseOrderId: string }
   | {
@@ -30,6 +32,64 @@ function autoLotNo(receivedAt: string, seq: number): string {
   return `${date}-${String(seq).padStart(3, "0")}`;
 }
 
+// 補償処理のためのオペレーション履歴
+type Compensation =
+  | { kind: "delete-stock"; id: string }
+  | {
+      kind: "restore-stock-quantity";
+      id: string;
+      previousQuantity: number;
+      previousReceivedAt: string | null;
+    }
+  | { kind: "delete-movement"; id: string }
+  | {
+      kind: "restore-po-line-received";
+      id: string;
+      previousReceived: number;
+    }
+  | { kind: "restore-po-status"; id: string; previousStatus: string };
+
+async function rollback(
+  supabase: SupabaseLike,
+  ops: Compensation[]
+): Promise<void> {
+  for (const op of ops.slice().reverse()) {
+    try {
+      switch (op.kind) {
+        case "delete-stock":
+          await supabase.from("product_stock").delete().eq("id", op.id);
+          break;
+        case "restore-stock-quantity":
+          await supabase
+            .from("product_stock")
+            .update({
+              quantity_on_hand: op.previousQuantity,
+              received_at: op.previousReceivedAt,
+            })
+            .eq("id", op.id);
+          break;
+        case "delete-movement":
+          await supabase.from("stock_movement").delete().eq("id", op.id);
+          break;
+        case "restore-po-line-received":
+          await supabase
+            .from("purchase_order_line")
+            .update({ received_quantity: op.previousReceived })
+            .eq("id", op.id);
+          break;
+        case "restore-po-status":
+          await supabase
+            .from("purchase_order")
+            .update({ status: op.previousStatus })
+            .eq("id", op.id);
+          break;
+      }
+    } catch (rollbackErr) {
+      console.error("[receivings] rollback step failed:", op, rollbackErr);
+    }
+  }
+}
+
 export async function confirmReceiving(
   _prev: ReceivingActionResult | null,
   formData: FormData
@@ -51,221 +111,225 @@ export async function confirmReceiving(
   const v = parsed.data;
 
   const supabase = await createClient();
+  const compensations: Compensation[] = [];
 
-  // 既定倉庫を取得
-  const { data: defaultWh, error: whErr } = await supabase
-    .from("warehouse")
-    .select("id")
-    .eq("is_default", true)
-    .maybeSingle();
-  if (whErr || !defaultWh) {
-    return {
-      ok: false,
-      fieldErrors: {},
-      formError:
-        whErr?.message ?? "既定の倉庫が見つかりません。倉庫マスターを確認してください。",
-    };
-  }
-  const warehouseId = defaultWh.id as string;
+  try {
+    const { data: defaultWh, error: whErr } = await supabase
+      .from("warehouse")
+      .select("id")
+      .eq("is_default", true)
+      .maybeSingle();
+    if (whErr || !defaultWh) {
+      throw new Error(
+        whErr?.message ?? "既定の倉庫が見つかりません。倉庫マスターを確認してください。"
+      );
+    }
+    const warehouseId = defaultWh.id as string;
 
-  // 発注ヘッダを取得（仕入先確認用）
-  const { data: po, error: poErr } = await supabase
-    .from("purchase_order")
-    .select("id,supplier_code,status")
-    .eq("id", v.purchaseOrderId)
-    .maybeSingle();
-  if (poErr || !po) {
-    return {
-      ok: false,
-      fieldErrors: {},
-      formError: poErr?.message ?? "発注書が見つかりません",
-    };
-  }
+    const { data: po, error: poErr } = await supabase
+      .from("purchase_order")
+      .select("id,status")
+      .eq("id", v.purchaseOrderId)
+      .maybeSingle();
+    if (poErr || !po) {
+      throw new Error(poErr?.message ?? "発注書が見つかりません");
+    }
+    const previousPoStatus = po.status as string;
 
-  let autoLotSeq = 1;
+    let autoLotSeq = 1;
 
-  for (const line of v.lines) {
-    if (line.quantity <= 0) continue;
+    for (const line of v.lines) {
+      if (line.quantity <= 0) continue;
 
-    // 入荷先の在庫ロットを決める
-    let stockId: string | null = null;
-    if (line.isLotManaged) {
-      // ロット番号 + 賞味期限で既存ロットを探す
-      const lotNo = line.lotNo || autoLotNo(v.receivedAt, autoLotSeq++);
-      const expiry = line.expiryDate || null;
-      const { data: existing, error: exErr } = await supabase
-        .from("product_stock")
-        .select("id,quantity_on_hand")
-        .eq("product_code", line.productCode)
-        .eq("warehouse_id", warehouseId)
-        .eq("lot_no", lotNo)
-        .eq("expiry_date", expiry as string)
-        .maybeSingle();
-      if (exErr) {
-        return { ok: false, fieldErrors: {}, formError: exErr.message };
-      }
-      if (existing) {
-        stockId = existing.id as string;
-        const { error: updErr } = await supabase
+      let stockId: string | null = null;
+      if (line.isLotManaged) {
+        const lotNo = line.lotNo || autoLotNo(v.receivedAt, autoLotSeq++);
+        const expiry = line.expiryDate || null;
+        const { data: existing, error: exErr } = await supabase
           .from("product_stock")
-          .update({
-            quantity_on_hand:
-              (existing.quantity_on_hand as number) + line.quantity,
-            received_at: v.receivedAt,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", stockId);
-        if (updErr) {
-          return { ok: false, fieldErrors: {}, formError: updErr.message };
+          .select("id,quantity_on_hand,received_at")
+          .eq("product_code", line.productCode)
+          .eq("warehouse_id", warehouseId)
+          .eq("lot_no", lotNo)
+          .eq("expiry_date", expiry as string)
+          .maybeSingle();
+        if (exErr) throw new Error(exErr.message);
+
+        if (existing) {
+          stockId = existing.id as string;
+          const previousQty = existing.quantity_on_hand as number;
+          const previousReceivedAt = existing.received_at as string | null;
+          const { error: updErr } = await supabase
+            .from("product_stock")
+            .update({
+              quantity_on_hand: previousQty + line.quantity,
+              received_at: v.receivedAt,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", stockId);
+          if (updErr) throw new Error(updErr.message);
+          compensations.push({
+            kind: "restore-stock-quantity",
+            id: stockId,
+            previousQuantity: previousQty,
+            previousReceivedAt,
+          });
+        } else {
+          const { data: created, error: insErr } = await supabase
+            .from("product_stock")
+            .insert({
+              product_code: line.productCode,
+              warehouse_id: warehouseId,
+              lot_no: lotNo,
+              expiry_date: expiry,
+              quantity_on_hand: line.quantity,
+              quantity_allocated: 0,
+              received_at: v.receivedAt,
+            })
+            .select("id")
+            .single();
+          if (insErr || !created) {
+            throw new Error(insErr?.message ?? "在庫ロットの作成に失敗しました");
+          }
+          stockId = created.id as string;
+          compensations.push({ kind: "delete-stock", id: stockId });
         }
       } else {
-        const { data: created, error: insErr } = await supabase
+        const { data: existing, error: exErr } = await supabase
           .from("product_stock")
-          .insert({
-            product_code: line.productCode,
-            warehouse_id: warehouseId,
-            lot_no: lotNo,
-            expiry_date: expiry,
-            quantity_on_hand: line.quantity,
-            quantity_allocated: 0,
-            received_at: v.receivedAt,
-          })
-          .select("id")
-          .single();
-        if (insErr || !created) {
-          return {
-            ok: false,
-            fieldErrors: {},
-            formError: insErr?.message ?? "在庫ロットの作成に失敗しました",
-          };
+          .select("id,quantity_on_hand,received_at")
+          .eq("product_code", line.productCode)
+          .eq("warehouse_id", warehouseId)
+          .is("lot_no", null)
+          .is("expiry_date", null)
+          .maybeSingle();
+        if (exErr) throw new Error(exErr.message);
+
+        if (existing) {
+          stockId = existing.id as string;
+          const previousQty = existing.quantity_on_hand as number;
+          const previousReceivedAt = existing.received_at as string | null;
+          const { error: updErr } = await supabase
+            .from("product_stock")
+            .update({
+              quantity_on_hand: previousQty + line.quantity,
+              received_at: v.receivedAt,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", stockId);
+          if (updErr) throw new Error(updErr.message);
+          compensations.push({
+            kind: "restore-stock-quantity",
+            id: stockId,
+            previousQuantity: previousQty,
+            previousReceivedAt,
+          });
+        } else {
+          const { data: created, error: insErr } = await supabase
+            .from("product_stock")
+            .insert({
+              product_code: line.productCode,
+              warehouse_id: warehouseId,
+              lot_no: null,
+              expiry_date: null,
+              quantity_on_hand: line.quantity,
+              quantity_allocated: 0,
+              received_at: v.receivedAt,
+            })
+            .select("id")
+            .single();
+          if (insErr || !created) {
+            throw new Error(insErr?.message ?? "在庫の作成に失敗しました");
+          }
+          stockId = created.id as string;
+          compensations.push({ kind: "delete-stock", id: stockId });
         }
-        stockId = created.id as string;
       }
-    } else {
-      // ロット管理なし：商品×倉庫で1行
-      const { data: existing, error: exErr } = await supabase
-        .from("product_stock")
-        .select("id,quantity_on_hand")
-        .eq("product_code", line.productCode)
-        .eq("warehouse_id", warehouseId)
-        .is("lot_no", null)
-        .is("expiry_date", null)
-        .maybeSingle();
-      if (exErr) {
-        return { ok: false, fieldErrors: {}, formError: exErr.message };
+
+      const { data: mv, error: mvErr } = await supabase
+        .from("stock_movement")
+        .insert({
+          product_stock_id: stockId,
+          movement_type: "in",
+          quantity: line.quantity,
+          reference_type: "purchase_order",
+          reference_id: v.purchaseOrderId,
+          note: line.note || null,
+        })
+        .select("id")
+        .single();
+      if (mvErr || !mv) {
+        throw new Error(mvErr?.message ?? "在庫移動履歴の作成に失敗しました");
       }
-      if (existing) {
-        stockId = existing.id as string;
-        const { error: updErr } = await supabase
-          .from("product_stock")
-          .update({
-            quantity_on_hand:
-              (existing.quantity_on_hand as number) + line.quantity,
-            received_at: v.receivedAt,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", stockId);
-        if (updErr) {
-          return { ok: false, fieldErrors: {}, formError: updErr.message };
-        }
-      } else {
-        const { data: created, error: insErr } = await supabase
-          .from("product_stock")
-          .insert({
-            product_code: line.productCode,
-            warehouse_id: warehouseId,
-            lot_no: null,
-            expiry_date: null,
-            quantity_on_hand: line.quantity,
-            quantity_allocated: 0,
-            received_at: v.receivedAt,
-          })
-          .select("id")
-          .single();
-        if (insErr || !created) {
-          return {
-            ok: false,
-            fieldErrors: {},
-            formError: insErr?.message ?? "在庫の作成に失敗しました",
-          };
-        }
-        stockId = created.id as string;
+      compensations.push({ kind: "delete-movement", id: mv.id as string });
+
+      const { data: poLine, error: poLineErr } = await supabase
+        .from("purchase_order_line")
+        .select("received_quantity")
+        .eq("id", line.purchaseOrderLineId)
+        .single();
+      if (poLineErr || !poLine) {
+        throw new Error(poLineErr?.message ?? "発注明細が見つかりません");
       }
+      const previousReceived = poLine.received_quantity as number;
+      const { error: poLineUpdErr } = await supabase
+        .from("purchase_order_line")
+        .update({ received_quantity: previousReceived + line.quantity })
+        .eq("id", line.purchaseOrderLineId);
+      if (poLineUpdErr) throw new Error(poLineUpdErr.message);
+      compensations.push({
+        kind: "restore-po-line-received",
+        id: line.purchaseOrderLineId,
+        previousReceived,
+      });
     }
 
-    // stock_movement に in タイプで記録
-    const { error: mvErr } = await supabase.from("stock_movement").insert({
-      product_stock_id: stockId,
-      movement_type: "in",
-      quantity: line.quantity,
-      reference_type: "purchase_order",
-      reference_id: v.purchaseOrderId,
-      note: line.note || null,
+    const { data: allLines, error: allErr } = await supabase
+      .from("purchase_order_line")
+      .select("quantity,received_quantity")
+      .eq("purchase_order_id", v.purchaseOrderId);
+    if (allErr) throw new Error(allErr.message);
+
+    let allReceived = true;
+    let anyReceived = false;
+    for (const l of (allLines ?? []) as {
+      quantity: number;
+      received_quantity: number;
+    }[]) {
+      if (l.received_quantity >= l.quantity) {
+        anyReceived = true;
+      } else {
+        allReceived = false;
+        if (l.received_quantity > 0) anyReceived = true;
+      }
+    }
+    const newStatus = allReceived
+      ? "received"
+      : anyReceived
+        ? "partial"
+        : "ordered";
+    const { error: statusErr } = await supabase
+      .from("purchase_order")
+      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .eq("id", v.purchaseOrderId);
+    if (statusErr) throw new Error(statusErr.message);
+    compensations.push({
+      kind: "restore-po-status",
+      id: v.purchaseOrderId,
+      previousStatus: previousPoStatus,
     });
-    if (mvErr) {
-      return { ok: false, fieldErrors: {}, formError: mvErr.message };
-    }
-
-    // purchase_order_line の received_quantity を加算
-    const { data: poLine, error: poLineErr } = await supabase
-      .from("purchase_order_line")
-      .select("received_quantity")
-      .eq("id", line.purchaseOrderLineId)
-      .single();
-    if (poLineErr || !poLine) {
-      return {
-        ok: false,
-        fieldErrors: {},
-        formError: poLineErr?.message ?? "発注明細が見つかりません",
-      };
-    }
-    const { error: poLineUpdErr } = await supabase
-      .from("purchase_order_line")
-      .update({
-        received_quantity:
-          (poLine.received_quantity as number) + line.quantity,
-      })
-      .eq("id", line.purchaseOrderLineId);
-    if (poLineUpdErr) {
-      return { ok: false, fieldErrors: {}, formError: poLineUpdErr.message };
-    }
-  }
-
-  // 全明細の入荷状況を見て purchase_order.status を更新
-  const { data: allLines, error: allErr } = await supabase
-    .from("purchase_order_line")
-    .select("quantity,received_quantity")
-    .eq("purchase_order_id", v.purchaseOrderId);
-  if (allErr) {
-    return { ok: false, fieldErrors: {}, formError: allErr.message };
-  }
-  let allReceived = true;
-  let anyReceived = false;
-  for (const l of (allLines ?? []) as {
-    quantity: number;
-    received_quantity: number;
-  }[]) {
-    if (l.received_quantity >= l.quantity) {
-      anyReceived = true;
-    } else {
-      allReceived = false;
-      if (l.received_quantity > 0) anyReceived = true;
-    }
-  }
-  const newStatus = allReceived
-    ? "received"
-    : anyReceived
-      ? "partial"
-      : "ordered";
-  const { error: statusErr } = await supabase
-    .from("purchase_order")
-    .update({ status: newStatus, updated_at: new Date().toISOString() })
-    .eq("id", v.purchaseOrderId);
-  if (statusErr) {
-    return { ok: false, fieldErrors: {}, formError: statusErr.message };
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "入荷処理に失敗しました";
+    console.error("[receivings] failed, rolling back:", message, {
+      compensations: compensations.length,
+    });
+    await rollback(supabase, compensations);
+    return { ok: false, fieldErrors: {}, formError: message };
   }
 
   revalidatePath("/purchase-orders");
+  revalidatePath(`/purchase-orders/${v.purchaseOrderId}`);
   revalidatePath("/stocks");
   revalidatePath("/receivings");
   redirect(`/purchase-orders/${v.purchaseOrderId}`);
