@@ -119,7 +119,7 @@ export function DeliveriesView({ orders, query, range }: DeliveriesViewProps) {
   );
 
   return (
-    <div className="pb-24">
+    <div>
       {allErrors.length > 0 && (
         <div className="mb-6 rounded-xl border border-danger bg-danger-light px-4 py-3 text-[14px] font-semibold text-danger">
           <ul className="list-disc pl-5">
@@ -130,15 +130,15 @@ export function DeliveriesView({ orders, query, range }: DeliveriesViewProps) {
         </div>
       )}
 
-      <section className="mb-6 flex items-center gap-4 rounded-2xl border border-info bg-info-light px-5 py-4">
-        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-info text-white">
+      <section className="mb-6 flex items-center gap-4 rounded-2xl border border-success bg-success-light px-5 py-4">
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-success text-white">
           <PackageCheck className="h-6 w-6" strokeWidth={2.5} />
         </div>
         <div>
-          <div className="mb-1 text-[15px] font-bold text-info">
+          <div className="mb-1 text-[15px] font-bold text-success">
             納品する注文を選んでください
           </div>
-          <div className="text-[13px] leading-[1.6] text-info/90">
+          <div className="text-[13px] leading-[1.6] text-success/90">
             納品が完了した注文にチェックをつけて、下の「納品を確定する」ボタンを押してください。
             納品を確定すると、自動で売上として記録され、納品書が作られます。
           </div>
@@ -270,28 +270,28 @@ export function DeliveriesView({ orders, query, range }: DeliveriesViewProps) {
       </div>
 
       {selectedOrders.length > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border-light bg-bg-surface px-8 py-4 shadow-[0_-4px_12px_rgba(15,23,42,0.08)]">
-          <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-4 text-[14px]">
+        <div className="sticky bottom-6 z-40 mx-auto mt-6 max-w-[800px] rounded-2xl bg-text-primary px-6 py-4 text-white shadow-[0_8px_24px_rgba(15,23,42,0.25)]">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-4 text-[15px] font-semibold">
               <span>
-                <strong className="text-[18px] font-bold text-primary">
+                <strong className="text-[18px] font-bold text-[#93c5fd]">
                   {selectedOrders.length}件
-                </strong>
+                </strong>{" "}
                 の注文を納品します
               </span>
               <span className="font-mono tabular-nums">
                 合計{" "}
-                <strong className="text-[18px] font-bold">
+                <strong className="text-[18px] font-bold text-[#93c5fd]">
                   {formatYen(totalAmount)}
                 </strong>
               </span>
-              <label className="flex items-center gap-2 text-[13px] text-text-secondary">
+              <label className="flex items-center gap-2 text-[13px] text-white/80">
                 納品日：
                 <input
                   type="date"
                   value={deliveryDate}
                   onChange={(e) => setDeliveryDate(e.target.value)}
-                  className="rounded-lg border border-border-default bg-bg-surface px-2 py-1.5 text-[14px] focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="rounded-lg border border-white/20 bg-white/10 px-2 py-1.5 text-[14px] text-white focus:border-white/60 focus:outline-none focus:ring-2 focus:ring-white/20"
                 />
               </label>
             </div>
@@ -299,7 +299,7 @@ export function DeliveriesView({ orders, query, range }: DeliveriesViewProps) {
               <button
                 type="button"
                 onClick={() => setSelected(new Set())}
-                className="inline-flex items-center gap-2 rounded-xl border border-border-default bg-bg-surface px-5 py-2.5 text-[14px] font-semibold text-text-primary transition-colors hover:bg-bg-muted"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-transparent px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-white/10"
               >
                 選択を解除
               </button>
