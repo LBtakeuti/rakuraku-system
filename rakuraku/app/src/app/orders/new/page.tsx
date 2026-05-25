@@ -1,5 +1,15 @@
-import { PlaceholderPage } from "@/components/common/placeholder-page";
+import { TopHeader } from "@/components/common/top-header";
+import { PageBar } from "@/components/common/page-bar";
+import { OrderNewForm } from "../order-new-form";
 
 export default function OrdersNewPage() {
-  return <PlaceholderPage title="注文を受ける" />;
+  return (
+    <>
+      <TopHeader />
+      <PageBar title="注文を受ける" />
+      <main className="mx-auto w-full max-w-[1100px] px-8 py-8">
+        <OrderNewForm />
+      </main>
+    </>
+  );
 }
