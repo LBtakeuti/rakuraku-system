@@ -27,7 +27,7 @@
 │   ├── 05-workflows.md            処理フローの詳細
 │   └── 06-implementation-plan.md  実装の順序とフェーズ
 ├── supabase/
-│   └── schema.sql             ← データベースDDL(16テーブル)
+│   └── schema.sql             ← データベースDDL(20テーブル)
 ├── mockups/                   ← 全13画面のHTMLモックアップ(見た目の正)
 │   ├── home.html
 │   ├── customers.html
