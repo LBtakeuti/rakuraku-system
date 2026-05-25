@@ -1,12 +1,16 @@
 "use client";
 
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { Search as SearchIcon, Pencil, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Pencil, Plus } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
-import { TextInput } from "@/components/forms/text-input";
-import { Chip } from "@/components/forms/chip";
 import { StatusBadge } from "@/components/common/status-badge";
+import {
+  DataTable,
+  SearchBar,
+  ChipRow,
+  useTableParams,
+  type DataColumn,
+} from "@/components/common/data-table";
 import type { ProductRow, OrderType } from "@/types/product";
 import { ORDER_TYPE_LABEL } from "@/types/product";
 
@@ -39,30 +43,80 @@ export function ProductsTable({
   filter,
 }: ProductsTableProps) {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState(query);
-  const [, startTransition] = useTransition();
+  const { pushWith } = useTableParams();
 
-  useEffect(() => {
-    setSearchTerm(query);
-  }, [query]);
-
-  const pushWith = (mods: Record<string, string | null>) => {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const [k, v] of Object.entries(mods)) {
-      if (v === null || v === "") params.delete(k);
-      else params.set(k, v);
-    }
-    startTransition(() => router.push(`${pathname}?${params.toString()}`));
-  };
-
-  const onSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    pushWith({ q: searchTerm.trim() || null, page: null });
-  };
-
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const columns: DataColumn<ProductRow>[] = [
+    {
+      key: "code",
+      header: "商品コード",
+      cell: (p) => (
+        <span className="font-mono tabular-nums text-[13px] text-text-secondary">
+          {p.productCode}
+        </span>
+      ),
+    },
+    {
+      key: "name",
+      header: "商品名",
+      cell: (p) => <span className="font-bold">{p.name}</span>,
+    },
+    {
+      key: "jan",
+      header: "JANコード",
+      cell: (p) => (
+        <span className="font-mono tabular-nums text-[13px] text-text-secondary">
+          {p.janCode ?? "—"}
+        </span>
+      ),
+    },
+    {
+      key: "units",
+      header: "入数",
+      align: "right",
+      cell: (p) => <span className="tabular-nums">{p.unitsPerCase}</span>,
+    },
+    {
+      key: "price",
+      header: "売上単価",
+      align: "right",
+      cell: (p) => (
+        <span className="tabular-nums">
+          {formatYen(p.defaultSalesUnitPrice)}
+        </span>
+      ),
+    },
+    {
+      key: "tax",
+      header: "税率",
+      cell: (p) =>
+        p.defaultTaxRate === 0.1 ? (
+          <StatusBadge variant="info">10%</StatusBadge>
+        ) : (
+          <StatusBadge variant="warning">8%</StatusBadge>
+        ),
+    },
+    {
+      key: "order_type",
+      header: "仕入方法",
+      cell: (p) => (
+        <StatusBadge variant={orderTypeVariant[p.defaultOrderType]}>
+          {ORDER_TYPE_LABEL[p.defaultOrderType]}
+        </StatusBadge>
+      ),
+    },
+    {
+      key: "stock",
+      header: "在庫",
+      align: "right",
+      cell: (p) => (
+        <span className="tabular-nums">
+          {p.isStocked
+            ? (p.totalStock ?? 0).toLocaleString("ja-JP")
+            : "—"}
+        </span>
+      ),
+    },
+  ];
 
   return (
     <div>
@@ -77,166 +131,50 @@ export function ProductsTable({
       </div>
 
       <div className="mb-6 rounded-2xl border border-border-light bg-bg-surface p-5 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
-        <form onSubmit={onSearch} className="mb-3 flex items-center gap-3">
-          <div className="relative flex-1">
-            <SearchIcon
-              className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted"
-              strokeWidth={2}
-            />
-            <TextInput
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="商品名、商品コード、JANコードで検索..."
-              className="pl-10"
-              aria-label="商品検索"
-            />
-          </div>
-          <button
-            type="submit"
-            className="inline-flex items-center gap-2 rounded-xl border border-border-default bg-bg-surface px-5 py-2.5 text-[15px] font-semibold text-text-primary transition-colors hover:bg-bg-muted"
-          >
-            検索
-          </button>
-        </form>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[13px] font-semibold text-text-secondary">
-            絞り込み:
-          </span>
-          <Chip
-            active={filter === "all"}
-            onClick={() => pushWith({ filter: null, page: null })}
-          >
-            すべて
-          </Chip>
-          <Chip
-            active={filter === "stocked"}
-            onClick={() => pushWith({ filter: "stocked", page: null })}
-          >
-            在庫がある商品
-          </Chip>
-          <Chip
-            active={filter === "order_at_sale"}
-            onClick={() => pushWith({ filter: "order_at_sale", page: null })}
-          >
-            注文を受けてから仕入れる
-          </Chip>
-          <Chip
-            active={filter === "no_price"}
-            onClick={() => pushWith({ filter: "no_price", page: null })}
-          >
-            単価が未設定
-          </Chip>
+        <div className="mb-3">
+          <SearchBar
+            initialValue={query}
+            placeholder="商品名、商品コード、JANコードで検索..."
+            ariaLabel="商品検索"
+            onSearch={(term) => pushWith({ q: term || null, page: null })}
+          />
         </div>
+        <ChipRow
+          label="絞り込み:"
+          active={filter}
+          options={[
+            { value: "all", label: "すべて" },
+            { value: "stocked", label: "在庫がある商品" },
+            { value: "order_at_sale", label: "注文を受けてから仕入れる" },
+            { value: "no_price", label: "単価が未設定" },
+          ]}
+          onChange={(v) =>
+            pushWith({ filter: v === "all" ? null : v, page: null })
+          }
+        />
       </div>
 
-      <div className="rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
-        <div className="border-b border-border-light px-5 py-3 text-[13px] text-text-secondary">
-          <strong className="font-bold text-text-primary">{total}</strong> 件の商品が登録されています
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-border-light bg-bg-muted text-[13px] font-semibold text-text-secondary">
-                <th className="px-4 py-3">商品コード</th>
-                <th className="px-4 py-3">商品名</th>
-                <th className="px-4 py-3">JANコード</th>
-                <th className="px-4 py-3 text-right">入数</th>
-                <th className="px-4 py-3 text-right">売上単価</th>
-                <th className="px-4 py-3">税率</th>
-                <th className="px-4 py-3">仕入方法</th>
-                <th className="px-4 py-3 text-right">在庫</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={9}
-                    className="px-4 py-12 text-center text-text-muted"
-                  >
-                    商品が見つかりませんでした
-                  </td>
-                </tr>
-              )}
-              {rows.map((p) => (
-                <tr
-                  key={p.productCode}
-                  className="cursor-pointer border-b border-border-light text-[14px] text-text-primary transition-colors last:border-b-0 hover:bg-primary-lighter"
-                  onClick={() => router.push(`/products/${p.productCode}/edit`)}
-                >
-                  <td className="px-4 py-3 font-mono tabular-nums text-[13px] text-text-secondary">
-                    {p.productCode}
-                  </td>
-                  <td className="px-4 py-3 font-bold">{p.name}</td>
-                  <td className="px-4 py-3 font-mono tabular-nums text-[13px] text-text-secondary">
-                    {p.janCode ?? "—"}
-                  </td>
-                  <td className="px-4 py-3 text-right tabular-nums">
-                    {p.unitsPerCase}
-                  </td>
-                  <td className="px-4 py-3 text-right tabular-nums">
-                    {formatYen(p.defaultSalesUnitPrice)}
-                  </td>
-                  <td className="px-4 py-3">
-                    {p.defaultTaxRate === 0.1 ? (
-                      <StatusBadge variant="info">10%</StatusBadge>
-                    ) : (
-                      <StatusBadge variant="warning">8%</StatusBadge>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge variant={orderTypeVariant[p.defaultOrderType]}>
-                      {ORDER_TYPE_LABEL[p.defaultOrderType]}
-                    </StatusBadge>
-                  </td>
-                  <td className="px-4 py-3 text-right tabular-nums">
-                    {p.isStocked ? (p.totalStock ?? 0).toLocaleString("ja-JP") : "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/products/${p.productCode}/edit`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-[13px] font-semibold text-text-primary transition-colors hover:bg-bg-muted"
-                    >
-                      <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
-                      編集
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-border-light px-5 py-3 text-[13px] text-text-secondary">
-            <div>
-              {page} / {totalPages} ページ
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() => pushWith({ page: String(page - 1) })}
-                className="rounded-lg border border-border-default bg-bg-surface px-3 py-1.5 text-[13px] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                前へ
-              </button>
-              <button
-                type="button"
-                disabled={page >= totalPages}
-                onClick={() => pushWith({ page: String(page + 1) })}
-                className="rounded-lg border border-border-default bg-bg-surface px-3 py-1.5 text-[13px] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                次へ
-              </button>
-            </div>
-          </div>
+      <DataTable
+        rows={rows}
+        total={total}
+        columns={columns}
+        rowKey={(p) => p.productCode}
+        unitLabel="件の商品が登録されています"
+        emptyMessage="商品が見つかりませんでした"
+        onRowClick={(p) => router.push(`/products/${p.productCode}/edit`)}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={(p) => pushWith({ page: String(p) })}
+        trailing={(p) => (
+          <Link
+            href={`/products/${p.productCode}/edit`}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-[13px] font-semibold text-text-primary transition-colors hover:bg-bg-muted"
+          >
+            <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
+            編集
+          </Link>
         )}
-      </div>
+      />
     </div>
   );
 }

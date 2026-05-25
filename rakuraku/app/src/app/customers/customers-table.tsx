@@ -1,13 +1,17 @@
 "use client";
 
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { Search as SearchIcon, Pencil, Download, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Pencil, Download, Plus } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState, useTransition } from "react";
-import { TextInput } from "@/components/forms/text-input";
-import { Chip } from "@/components/forms/chip";
 import { RankBadge } from "@/components/common/rank-badge";
 import { StatusBadge } from "@/components/common/status-badge";
+import {
+  DataTable,
+  SearchBar,
+  ChipRow,
+  useTableParams,
+  type DataColumn,
+} from "@/components/common/data-table";
 import type { CustomerRow, CustomerStatus } from "@/types/customer";
 import { STATUS_LABEL } from "@/types/customer";
 
@@ -38,30 +42,37 @@ export function CustomersTable({
   status,
 }: CustomersTableProps) {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState(query);
-  const [, startTransition] = useTransition();
+  const { pushWith } = useTableParams();
 
-  useEffect(() => {
-    setSearchTerm(query);
-  }, [query]);
-
-  const pushWith = (mods: Record<string, string | null>) => {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const [k, v] of Object.entries(mods)) {
-      if (v === null || v === "") params.delete(k);
-      else params.set(k, v);
-    }
-    startTransition(() => router.push(`${pathname}?${params.toString()}`));
-  };
-
-  const onSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    pushWith({ q: searchTerm.trim() || null, page: null });
-  };
-
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const columns: DataColumn<CustomerRow>[] = [
+    {
+      key: "code",
+      header: "コード",
+      cell: (c) => (
+        <span className="font-mono tabular-nums text-[13px] text-text-secondary">
+          {c.customerCode}
+        </span>
+      ),
+    },
+    {
+      key: "name",
+      header: "お客様の名前",
+      cell: (c) => <span className="font-bold">{c.name}</span>,
+    },
+    { key: "address", header: "住所", cell: (c) => c.address ?? "—" },
+    { key: "phone", header: "電話番号", cell: (c) => c.phone ?? "—" },
+    { key: "rank", header: "ランク", cell: (c) => <RankBadge rank={c.rank} /> },
+    { key: "staff", header: "担当者", cell: (c) => c.staffName ?? "—" },
+    {
+      key: "status",
+      header: "状態",
+      cell: (c) => (
+        <StatusBadge variant={statusVariant[c.status]}>
+          {STATUS_LABEL[c.status]}
+        </StatusBadge>
+      ),
+    },
+  ];
 
   return (
     <div>
@@ -85,150 +96,50 @@ export function CustomersTable({
       </div>
 
       <div className="mb-6 rounded-2xl border border-border-light bg-bg-surface p-5 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
-        <form onSubmit={onSearch} className="mb-3 flex items-center gap-3">
-          <div className="relative flex-1">
-            <SearchIcon
-              className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted"
-              strokeWidth={2}
-            />
-            <TextInput
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="お客様の名前、コード、フリガナで検索..."
-              className="pl-10"
-              aria-label="お客様検索"
-            />
-          </div>
-          <button
-            type="submit"
-            className="inline-flex items-center gap-2 rounded-xl border border-border-default bg-bg-surface px-5 py-2.5 text-[15px] font-semibold text-text-primary transition-colors hover:bg-bg-muted"
-          >
-            検索
-          </button>
-        </form>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[13px] font-semibold text-text-secondary">
-            絞り込み:
-          </span>
-          <Chip
-            active={status === "all"}
-            onClick={() => pushWith({ status: null, page: null })}
-          >
-            すべて
-          </Chip>
-          <Chip
-            active={status === "active"}
-            onClick={() => pushWith({ status: "active", page: null })}
-          >
-            取引中のみ
-          </Chip>
-          <Chip
-            active={status === "paused"}
-            onClick={() => pushWith({ status: "paused", page: null })}
-          >
-            休止中
-          </Chip>
-          <Chip
-            active={status === "rank_ab"}
-            onClick={() => pushWith({ status: "rank_ab", page: null })}
-          >
-            大切なお客様（ランクA・B）
-          </Chip>
+        <div className="mb-3">
+          <SearchBar
+            initialValue={query}
+            placeholder="お客様の名前、コード、フリガナで検索..."
+            ariaLabel="お客様検索"
+            onSearch={(term) => pushWith({ q: term || null, page: null })}
+          />
         </div>
+        <ChipRow
+          label="絞り込み:"
+          active={status}
+          options={[
+            { value: "all", label: "すべて" },
+            { value: "active", label: "取引中のみ" },
+            { value: "paused", label: "休止中" },
+            { value: "rank_ab", label: "大切なお客様（ランクA・B）" },
+          ]}
+          onChange={(v) =>
+            pushWith({ status: v === "all" ? null : v, page: null })
+          }
+        />
       </div>
 
-      <div className="rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
-        <div className="border-b border-border-light px-5 py-3 text-[13px] text-text-secondary">
-          <strong className="font-bold text-text-primary">{total}</strong>{" "}
-          件のお客様が登録されています
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-border-light bg-bg-muted text-[13px] font-semibold text-text-secondary">
-                <th className="px-4 py-3">コード</th>
-                <th className="px-4 py-3">お客様の名前</th>
-                <th className="px-4 py-3">住所</th>
-                <th className="px-4 py-3">電話番号</th>
-                <th className="px-4 py-3">ランク</th>
-                <th className="px-4 py-3">担当者</th>
-                <th className="px-4 py-3">状態</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-text-muted">
-                    お客様が見つかりませんでした
-                  </td>
-                </tr>
-              )}
-              {rows.map((c) => (
-                <tr
-                  key={c.customerCode}
-                  className="cursor-pointer border-b border-border-light text-[14px] text-text-primary transition-colors last:border-b-0 hover:bg-primary-lighter"
-                  onClick={() => router.push(`/customers/${c.customerCode}/edit`)}
-                >
-                  <td className="px-4 py-3 font-mono tabular-nums text-[13px] text-text-secondary">
-                    {c.customerCode}
-                  </td>
-                  <td className="px-4 py-3 font-bold">{c.name}</td>
-                  <td className="px-4 py-3">{c.address ?? "—"}</td>
-                  <td className="px-4 py-3">{c.phone ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    <RankBadge rank={c.rank} />
-                  </td>
-                  <td className="px-4 py-3">{c.staffName ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge variant={statusVariant[c.status]}>
-                      {STATUS_LABEL[c.status]}
-                    </StatusBadge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`/customers/${c.customerCode}/edit`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-[13px] font-semibold text-text-primary transition-colors hover:bg-bg-muted"
-                    >
-                      <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
-                      編集
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-border-light px-5 py-3 text-[13px] text-text-secondary">
-            <div>
-              {page} / {totalPages} ページ
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                disabled={page <= 1}
-                onClick={() => pushWith({ page: String(page - 1) })}
-                className="rounded-lg border border-border-default bg-bg-surface px-3 py-1.5 text-[13px] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                前へ
-              </button>
-              <button
-                type="button"
-                disabled={page >= totalPages}
-                onClick={() => pushWith({ page: String(page + 1) })}
-                className="rounded-lg border border-border-default bg-bg-surface px-3 py-1.5 text-[13px] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                次へ
-              </button>
-            </div>
-          </div>
+      <DataTable
+        rows={rows}
+        total={total}
+        columns={columns}
+        rowKey={(c) => c.customerCode}
+        unitLabel="件のお客様が登録されています"
+        emptyMessage="お客様が見つかりませんでした"
+        onRowClick={(c) => router.push(`/customers/${c.customerCode}/edit`)}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={(p) => pushWith({ page: String(p) })}
+        trailing={(c) => (
+          <Link
+            href={`/customers/${c.customerCode}/edit`}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border-default px-3 py-1.5 text-[13px] font-semibold text-text-primary transition-colors hover:bg-bg-muted"
+          >
+            <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
+            編集
+          </Link>
         )}
-      </div>
+      />
     </div>
   );
 }
