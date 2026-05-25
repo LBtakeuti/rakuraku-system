@@ -28,7 +28,7 @@ export function RadioGroupField<T extends string>({
           <label
             key={opt.value}
             className={cn(
-              "inline-flex cursor-pointer items-center gap-2 rounded-[10px] border bg-bg-surface px-4 py-2.5 text-[15px] font-semibold transition-colors",
+              "inline-flex cursor-pointer items-center gap-2.5 rounded-[10px] border bg-bg-surface px-4 py-2.5 text-[15px] font-semibold transition-colors",
               selected
                 ? "border-primary bg-primary-lighter text-primary"
                 : "border-border-default text-text-primary hover:border-primary/40"
@@ -40,8 +40,19 @@ export function RadioGroupField<T extends string>({
               value={opt.value}
               checked={selected}
               onChange={() => onChange(opt.value)}
-              className="h-4 w-4 accent-primary"
+              className="sr-only"
             />
+            <span
+              aria-hidden
+              className={cn(
+                "relative flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors",
+                selected ? "border-primary" : "border-border-default"
+              )}
+            >
+              {selected && (
+                <span className="h-2.5 w-2.5 rounded-full bg-primary" />
+              )}
+            </span>
             {opt.label}
           </label>
         );

@@ -8,7 +8,7 @@ import { TextInput } from "@/components/forms/text-input";
 import { SelectField } from "@/components/forms/select";
 import { RankPicker } from "@/components/forms/rank-picker";
 import { RadioGroupField } from "@/components/forms/radio-group";
-import { OptionCard } from "@/components/forms/option-card";
+import { InvoiceFormatCard } from "@/components/forms/invoice-format-card";
 import { StepIndicator } from "@/components/forms/step-indicator";
 import type { StaffOption } from "@/lib/supabase/queries/customer";
 import type { CustomerRow } from "@/types/customer";
@@ -421,13 +421,15 @@ export function CustomerForm({
 
         <FieldGroup label="請求書の種類" required help="このお客様にどの形式の請求書を送るか選んでください。" error={fieldError("invoiceFormat")}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <OptionCard
+            <InvoiceFormatCard
+              variant="invoice_only"
               selected={values.invoiceFormat === "invoice_only"}
               onSelect={() => update("invoiceFormat", "invoice_only")}
               title="請求書のみ"
               description="請求書を1枚だけ発行します。納品の明細は請求書の中に載ります。"
             />
-            <OptionCard
+            <InvoiceFormatCard
+              variant="invoice_delivery"
               selected={values.invoiceFormat === "invoice_delivery"}
               onSelect={() => update("invoiceFormat", "invoice_delivery")}
               title="請求書＋納品書"
