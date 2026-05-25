@@ -55,3 +55,16 @@ rm -rf .next && npm run build
 ```
 
 通常運用ではインクリメンタルビルドの利点を活かすため `build` スクリプトに自動削除は組み込んでいない。再現性が高い場合はフェーズ8（仕上げ）で根本対応の要否を判断する。
+
+## クレジット
+
+### IPAex フォント
+
+帳票PDF（発注書・受注伝票・請求書・請求書+納品書・請求一覧表）の日本語描画に IPAex フォント（IPAex ゴシック・IPAex 明朝）を使用しています。
+
+- 著作: 情報処理推進機構（IPA）
+- 配布元: https://moji.or.jp/ipafont/
+- ライセンス: IPA Font License Agreement v1.0
+- 全文: `public/fonts/IPA_Font_License_Agreement_v1.0.txt`
+
+商用利用・再配布可。改変は禁止されています。
