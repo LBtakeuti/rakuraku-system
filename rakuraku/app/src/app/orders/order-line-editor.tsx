@@ -8,6 +8,7 @@ import {
   useTransition,
 } from "react";
 import { Plus, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type {
   Control,
   FieldArrayWithId,
@@ -168,13 +169,15 @@ export function OrderLineEditor({
           className="fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-full bg-text-primary px-5 py-3 text-[14px] font-semibold text-white shadow-lg"
         >
           <span>行を削除しました</span>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             type="button"
             onClick={undo}
-            className="rounded-full bg-white/15 px-3 py-1 text-[13px] font-bold text-white transition-colors hover:bg-white/25"
+            className="bg-white/15 text-white hover:bg-white/25 hover:text-white"
           >
             元に戻す
-          </button>
+          </Button>
         </div>
       )}
     </div>
@@ -442,14 +445,16 @@ function LineRow({
         </select>
       </td>
       <td className="px-2 py-2">
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           type="button"
           onClick={onRemove}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-danger-light hover:text-danger"
           aria-label={`${index + 1}行目を削除`}
+          className="text-text-muted hover:bg-danger-light hover:text-danger"
         >
           <Trash2 className="h-4 w-4" strokeWidth={2} />
-        </button>
+        </Button>
       </td>
     </tr>
   );
