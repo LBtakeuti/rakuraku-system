@@ -11,6 +11,7 @@ import type { BillingSummaryRow } from "@/types/billing";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { PrintButton } from "@/components/common/print-button";
+import { ConfirmDialog } from "@/components/common/confirm-dialog";
 
 type BillingFormProps = {
   initialClosingDay: number;
@@ -82,16 +83,7 @@ export function BillingForm({
     }
   };
 
-  const onIssue = () => {
-    if (selected.size === 0) return;
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(
-        `${selected.size}社の請求書を発行します。よろしいですか？\n（請求書はあとから取消しできません）`
-      )
-    ) {
-      return;
-    }
+  const onIssueConfirmed = () => {
     const payload = {
       customerCodes: Array.from(selected),
       periodFrom,
@@ -452,15 +444,22 @@ export function BillingForm({
                   発行日：{todayLabel.replaceAll("-", "/")}
                 </span>
               </div>
-              <button
-                type="button"
-                onClick={onIssue}
-                disabled={selected.size === 0}
-                className="inline-flex items-center gap-2 rounded-xl bg-success px-6 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(5,150,105,0.25)] transition-colors hover:bg-success/90 disabled:cursor-not-allowed disabled:opacity-50"
+              <ConfirmDialog
+                title="請求書を発行しますか？"
+                description={`${selected.size}社の請求書を発行します。発行後は取り消しできません。`}
+                confirmLabel="発行する"
+                cancelLabel="やめる"
+                onConfirm={onIssueConfirmed}
               >
-                <Check className="h-5 w-5" strokeWidth={2.5} />
-                請求書をまとめて発行する
-              </button>
+                <button
+                  type="button"
+                  disabled={selected.size === 0}
+                  className="inline-flex items-center gap-2 rounded-xl bg-success px-6 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(5,150,105,0.25)] transition-colors hover:bg-success/90 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Check className="h-5 w-5" strokeWidth={2.5} />
+                  請求書をまとめて発行する
+                </button>
+              </ConfirmDialog>
             </div>
           </>
         )}

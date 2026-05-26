@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/common/status-badge";
 import type { DeliverableOrder } from "@/types/sales-invoice";
 import { confirmDelivery, type DeliveryActionResult } from "./actions";
 import { cn } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/common/confirm-dialog";
 
 type DeliveriesViewProps = {
   orders: DeliverableOrder[];
@@ -88,16 +89,7 @@ export function DeliveriesView({ orders, query, range }: DeliveriesViewProps) {
   const selectedOrders = orders.filter((o) => selected.has(o.id));
   const totalAmount = selectedOrders.reduce((a, o) => a + o.totalAmount, 0);
 
-  const onConfirm = () => {
-    if (selectedOrders.length === 0) return;
-    if (
-      typeof window !== "undefined" &&
-      !window.confirm(
-        `${selectedOrders.length}件の注文を納品確定します。よろしいですか？\n（在庫が実減され、納品書が作成されます）`
-      )
-    ) {
-      return;
-    }
+  const onConfirmDelivery = () => {
     const fd = new FormData();
     fd.set(
       "payload",
@@ -303,14 +295,21 @@ export function DeliveriesView({ orders, query, range }: DeliveriesViewProps) {
               >
                 選択を解除
               </button>
-              <button
-                type="button"
-                onClick={onConfirm}
-                className="inline-flex items-center gap-2 rounded-xl bg-success px-6 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(5,150,105,0.25)] transition-colors hover:bg-success/90"
+              <ConfirmDialog
+                title="納品を確定しますか？"
+                description={`${selectedOrders.length}件の注文を納品確定します。在庫が実減され、納品書が作成されます。この操作は取り消せません。`}
+                confirmLabel="確定する"
+                cancelLabel="やめる"
+                onConfirm={onConfirmDelivery}
               >
-                <Check className="h-5 w-5" strokeWidth={2.5} />
-                納品を確定する
-              </button>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 rounded-xl bg-success px-6 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(5,150,105,0.25)] transition-colors hover:bg-success/90"
+                >
+                  <Check className="h-5 w-5" strokeWidth={2.5} />
+                  納品を確定する
+                </button>
+              </ConfirmDialog>
             </div>
           </div>
         </div>
