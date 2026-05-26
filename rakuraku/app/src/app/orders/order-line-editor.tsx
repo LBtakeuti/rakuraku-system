@@ -7,7 +7,7 @@ import {
   useState,
   useTransition,
 } from "react";
-import { Plus, Trash2, GripVertical } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import type {
   Control,
   FieldArrayWithId,
@@ -342,9 +342,7 @@ function LineRow({
 
   return (
     <tr className="border-b border-border-light text-[14px] last:border-b-0">
-      <td className="px-2 py-2 text-text-muted">
-        <GripVertical className="h-4 w-4" strokeWidth={2} aria-hidden />
-      </td>
+      <td className="w-2 px-1 py-2" />
       <td className="px-2 py-2 text-center font-mono tabular-nums text-text-secondary">
         {index + 1}
       </td>
