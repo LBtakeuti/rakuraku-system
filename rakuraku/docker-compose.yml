@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - "3020:3020"
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+      - /app/.next
+    env_file:
+      - ./app/.env.local
+    environment:
+      - WATCHPACK_POLLING=true
