@@ -14,22 +14,37 @@ import type { TaxRate } from "@/types/product";
 import React from "react";
 
 export async function GET(request: NextRequest) {
-  const statementId = request.nextUrl.searchParams.get("statementId");
-  if (!statementId) {
+  const sp = request.nextUrl.searchParams;
+  const statementId = sp.get("statementId");
+  const customerCode = sp.get("customerCode");
+  const periodTo = sp.get("periodTo");
+
+  if (!statementId && (!customerCode || !periodTo)) {
     return NextResponse.json(
-      { error: "statementId パラメータが必要です" },
+      { error: "statementId または customerCode+periodTo パラメータが必要です" },
       { status: 400 }
     );
   }
 
   const supabase = await createClient();
 
-  const { data: stmt, error: stmtErr } = await supabase
+  let stmtQuery = supabase
     .from("billing_statement")
     .select(
       "id,statement_no,customer_code,period_from,period_to,issue_date,due_date,previous_balance,current_amount,total_due"
-    )
-    .eq("id", statementId)
+    );
+
+  if (statementId) {
+    stmtQuery = stmtQuery.eq("id", statementId);
+  } else {
+    stmtQuery = stmtQuery
+      .eq("customer_code", customerCode!)
+      .eq("period_to", periodTo!);
+  }
+
+  const { data: stmt, error: stmtErr } = await stmtQuery
+    .order("issue_date", { ascending: false })
+    .limit(1)
     .maybeSingle();
   if (stmtErr) throw stmtErr;
   if (!stmt) {

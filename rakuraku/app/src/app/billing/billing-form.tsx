@@ -243,9 +243,14 @@ export function BillingForm({
           </div>
           <button
             type="button"
-            disabled
-            title="フェーズ7で実装予定"
-            className="inline-flex items-center gap-2 rounded-xl border border-border-default bg-bg-surface px-4 py-2 text-[13px] font-semibold text-text-primary shadow-[0_1px_3px_rgba(15,23,42,0.05)] disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => {
+              const params = new URLSearchParams();
+              params.set("closingDay", String(closingDay));
+              params.set("periodFrom", periodFrom);
+              params.set("periodTo", periodTo);
+              window.open(`/api/documents/billing-list?${params.toString()}`, "_blank");
+            }}
+            className="inline-flex items-center gap-2 rounded-xl border border-border-default bg-bg-surface px-4 py-2 text-[13px] font-semibold text-text-primary shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-colors hover:bg-bg-muted"
           >
             <Printer className="h-4 w-4" strokeWidth={2} />
             請求一覧表を印刷する
@@ -412,7 +417,22 @@ export function BillingForm({
                           {formatYen(s.totalDue)}
                         </td>
                         <td className="px-3 py-3 text-center text-[13px] text-text-muted">
-                          未発行
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const params = new URLSearchParams();
+                              params.set("customerCode", s.customerCode);
+                              params.set("periodTo", periodTo);
+                              window.open(
+                                `/api/documents/invoice?${params.toString()}`,
+                                "_blank"
+                              );
+                            }}
+                            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-semibold text-primary hover:bg-primary-lighter"
+                          >
+                            <Printer className="h-3.5 w-3.5" strokeWidth={2} />
+                            請求書
+                          </button>
                         </td>
                       </tr>
                     );

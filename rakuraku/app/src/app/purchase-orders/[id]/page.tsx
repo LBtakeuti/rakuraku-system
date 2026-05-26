@@ -4,6 +4,7 @@ import { PackagePlus } from "lucide-react";
 import { TopHeader } from "@/components/common/top-header";
 import { PageBar } from "@/components/common/page-bar";
 import { StatusBadge } from "@/components/common/status-badge";
+import { PrintButton } from "@/components/common/print-button";
 import { getPurchaseOrder } from "@/lib/supabase/queries/purchase-order";
 import {
   PO_STATUS_LABEL,
@@ -58,15 +59,21 @@ export default async function PurchaseOrderDetailPage({
                 {PO_STATUS_LABEL[po.status]}
               </StatusBadge>
             </div>
-            {canReceive && (
-              <Link
-                href={`/receivings?po=${po.id}`}
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(15,23,42,0.06)] transition-colors hover:bg-primary-hover"
-              >
-                <PackagePlus className="h-5 w-5" strokeWidth={2.5} />
-                この発注書で入荷を登録する
-              </Link>
-            )}
+            <div className="flex items-center gap-3">
+              <PrintButton
+                href={`/api/documents/purchase-order?purchaseOrderId=${po.id}`}
+                label="発注書を印刷"
+              />
+              {canReceive && (
+                <Link
+                  href={`/receivings?po=${po.id}`}
+                  className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(15,23,42,0.06)] transition-colors hover:bg-primary-hover"
+                >
+                  <PackagePlus className="h-5 w-5" strokeWidth={2.5} />
+                  この発注書で入荷を登録する
+                </Link>
+              )}
+            </div>
           </div>
           <dl className="grid grid-cols-2 gap-x-8 gap-y-3 text-[14px] sm:grid-cols-4">
             <div>

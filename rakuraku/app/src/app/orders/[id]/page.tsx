@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import { Printer } from "lucide-react";
 import { TopHeader } from "@/components/common/top-header";
 import { PageBar } from "@/components/common/page-bar";
 import { StatusBadge } from "@/components/common/status-badge";
+import { PrintButton } from "@/components/common/print-button";
 import { getSalesOrder } from "@/lib/supabase/queries/sales-order";
 import {
   SALES_ORDER_STATUS_LABEL,
@@ -43,13 +45,19 @@ export default async function OrderDetailPage({
       <PageBar title={`受注詳細：${order.orderNo}`} backTo="/orders" />
       <main className="mx-auto w-full max-w-[1100px] px-8 py-8">
         <section className="mb-6 rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
-          <div className="mb-4 flex items-center gap-3">
-            <span className="font-mono tabular-nums text-[22px] font-bold text-text-primary">
-              {order.orderNo}
-            </span>
-            <StatusBadge variant={statusVariant[order.status]}>
-              {SALES_ORDER_STATUS_LABEL[order.status]}
-            </StatusBadge>
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="font-mono tabular-nums text-[22px] font-bold text-text-primary">
+                {order.orderNo}
+              </span>
+              <StatusBadge variant={statusVariant[order.status]}>
+                {SALES_ORDER_STATUS_LABEL[order.status]}
+              </StatusBadge>
+            </div>
+            <PrintButton
+              href={`/api/documents/sales-order?orderId=${id}`}
+              label="受注伝票を印刷"
+            />
           </div>
           <dl className="grid grid-cols-2 gap-x-8 gap-y-3 text-[14px] sm:grid-cols-4">
             <div>
