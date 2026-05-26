@@ -28,7 +28,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 min-[601px]:grid-cols-2 min-[601px]:gap-6 min-[761px]:grid-cols-3 min-[1101px]:grid-cols-5">
+        <div className="flex flex-wrap justify-center gap-5 min-[601px]:gap-6">
           {/* 上段: 日々の作業 + 確認 */}
           <BigButton
             href="/orders/new"

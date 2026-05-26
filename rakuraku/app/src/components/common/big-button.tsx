@@ -46,7 +46,7 @@ export function BigButton({
   return (
     <Link
       href={href}
-      className="flex min-h-[200px] flex-col items-center justify-center gap-3.5 rounded-2xl border border-border-light bg-bg-surface px-4 py-7 text-center shadow-[0_2px_6px_rgba(15,23,42,0.06)] transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(15,23,42,0.1)] active:translate-y-0 active:shadow-[0_1px_3px_rgba(15,23,42,0.08)] active:duration-[50ms]"
+      className="flex w-[200px] min-h-[200px] flex-col items-center justify-center gap-3.5 rounded-2xl border border-border-light bg-bg-surface px-4 py-7 text-center shadow-[0_2px_6px_rgba(15,23,42,0.06)] transition-[transform,box-shadow] duration-150 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(15,23,42,0.1)] active:translate-y-0 active:shadow-[0_1px_3px_rgba(15,23,42,0.08)] active:duration-[50ms]"
     >
       <div
         className={cn(
