@@ -349,7 +349,7 @@ export async function confirmDelivery(
       formError:
         failedOrders.length > 0
           ? `すべての受注で納品処理に失敗しました。最初のエラー: ${failedOrders[0].message}`
-          : "納品処理に失敗しました",
+          : "納品処理に失敗しました。通信状態を確認して、もう一度お試しください",
     };
   }
 

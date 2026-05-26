@@ -43,7 +43,7 @@ export async function createCustomer(
       .select("customer_code")
       .eq("customer_code", code)
       .maybeSingle();
-    if (exErr) return { success: false, fieldErrors: {}, formError: exErr.message };
+    if (exErr) return { success: false, fieldErrors: {}, formError: "お客様コードの確認に失敗しました。通信状態を確認して、もう一度お試しください" };
     if (existing) {
       return {
         success: false,
@@ -75,7 +75,7 @@ export async function createCustomer(
     tax_rounding: v.taxRounding,
   });
   if (error) {
-    return { success: false, fieldErrors: {}, formError: error.message };
+    return { success: false, fieldErrors: {}, formError: "お客様情報の保存に失敗しました。通信状態を確認して、もう一度お試しください" };
   }
 
   revalidatePath("/customers");
@@ -118,7 +118,7 @@ export async function updateCustomer(
     })
     .eq("customer_code", customerCode);
   if (error) {
-    return { success: false, fieldErrors: {}, formError: error.message };
+    return { success: false, fieldErrors: {}, formError: "お客様情報の更新に失敗しました。通信状態を確認して、もう一度お試しください" };
   }
   revalidatePath("/customers");
   revalidatePath(`/customers/${customerCode}/edit`);

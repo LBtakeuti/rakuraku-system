@@ -47,7 +47,7 @@ export async function createProduct(
       .select("product_code")
       .eq("product_code", code)
       .maybeSingle();
-    if (exErr) return { success: false, fieldErrors: {}, formError: exErr.message };
+    if (exErr) return { success: false, fieldErrors: {}, formError: "商品コードの確認に失敗しました。通信状態を確認して、もう一度お試しください" };
     if (existing) {
       return {
         success: false,
@@ -73,7 +73,7 @@ export async function createProduct(
     is_stocked: v.defaultOrderType === "stock",
   });
   if (error) {
-    return { success: false, fieldErrors: {}, formError: error.message };
+    return { success: false, fieldErrors: {}, formError: "商品の保存に失敗しました。通信状態を確認して、もう一度お試しください" };
   }
 
   if (v.defaultOrderType === "stock" && v.initialStock && v.initialStock > 0) {
@@ -97,7 +97,7 @@ export async function createProduct(
       quantity_on_hand: v.initialStock,
     });
     if (stErr) {
-      return { success: false, fieldErrors: {}, formError: stErr.message };
+      return { success: false, fieldErrors: {}, formError: "初期在庫の登録に失敗しました。通信状態を確認して、もう一度お試しください" };
     }
   }
 
@@ -136,7 +136,7 @@ export async function updateProduct(
     })
     .eq("product_code", productCode);
   if (error) {
-    return { success: false, fieldErrors: {}, formError: error.message };
+    return { success: false, fieldErrors: {}, formError: "商品情報の更新に失敗しました。通信状態を確認して、もう一度お試しください" };
   }
   revalidatePath("/products");
   revalidatePath(`/products/${productCode}/edit`);
