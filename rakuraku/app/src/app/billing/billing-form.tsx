@@ -9,6 +9,8 @@ import {
 import { CLOSING_DAY_OPTIONS } from "@/types/customer";
 import type { BillingSummaryRow } from "@/types/billing";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { PrintButton } from "@/components/common/print-button";
 
 type BillingFormProps = {
   initialClosingDay: number;
@@ -241,20 +243,10 @@ export function BillingForm({
             </strong>{" "}
             社
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              const params = new URLSearchParams();
-              params.set("closingDay", String(closingDay));
-              params.set("periodFrom", periodFrom);
-              params.set("periodTo", periodTo);
-              window.open(`/api/documents/billing-list?${params.toString()}`, "_blank");
-            }}
-            className="inline-flex items-center gap-2 rounded-xl border border-border-default bg-bg-surface px-4 py-2 text-[13px] font-semibold text-text-primary shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-colors hover:bg-bg-muted"
-          >
-            <Printer className="h-4 w-4" strokeWidth={2} />
-            請求一覧表を印刷する
-          </button>
+          <PrintButton
+            href={`/api/documents/billing-list?closingDay=${closingDay}&periodFrom=${periodFrom}&periodTo=${periodTo}`}
+            label="請求一覧表を印刷する"
+          />
         </div>
         {summary.length === 0 ? (
           <div className="rounded-xl bg-bg-muted px-5 py-10 text-center text-text-muted">
@@ -416,8 +408,10 @@ export function BillingForm({
                         <td className="px-3 py-3 text-right font-mono tabular-nums font-bold">
                           {formatYen(s.totalDue)}
                         </td>
-                        <td className="px-3 py-3 text-center text-[13px] text-text-muted">
-                          <button
+                        <td className="px-3 py-3 text-center">
+                          <Button
+                            variant="ghost"
+                            size="xs"
                             type="button"
                             onClick={() => {
                               const params = new URLSearchParams();
@@ -428,11 +422,10 @@ export function BillingForm({
                                 "_blank"
                               );
                             }}
-                            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-semibold text-primary hover:bg-primary-lighter"
                           >
                             <Printer className="h-3.5 w-3.5" strokeWidth={2} />
                             請求書
-                          </button>
+                          </Button>
                         </td>
                       </tr>
                     );
