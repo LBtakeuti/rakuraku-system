@@ -16,3 +16,4 @@ services:
     environment:
       - WATCHPACK_POLLING=true
       - SUPABASE_INTERNAL_URL=http://host.docker.internal:54321
+      - SKIP_AUTH=true

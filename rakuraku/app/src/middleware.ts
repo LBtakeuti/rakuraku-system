@@ -29,6 +29,11 @@ export async function middleware(request: NextRequest) {
     }
   );
 
+  // 開発環境: SKIP_AUTH=true の場合は認証チェックをスキップ
+  if (process.env.SKIP_AUTH === "true") {
+    return supabaseResponse;
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
