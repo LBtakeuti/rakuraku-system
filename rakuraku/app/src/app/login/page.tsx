@@ -35,26 +35,28 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-page px-4">
-      <div className="w-full max-w-[400px] rounded-2xl border border-border-light bg-bg-surface p-8 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
-        <div className="mb-8 flex flex-col items-center gap-3">
+      <div className="w-full max-w-[400px] rounded-2xl border border-border-light bg-bg-surface p-10 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+        <div className="mb-10 flex flex-col items-center gap-4">
           <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary text-2xl font-bold text-white">
             楽
           </div>
-          <h1 className="text-xl font-bold text-text-primary">
-            らくらく受発注システム
-          </h1>
-          <p className="text-[13px] text-text-secondary">
-            メールアドレスとパスワードでログインしてください
-          </p>
+          <div className="flex flex-col items-center gap-2">
+            <h1 className="text-xl font-bold text-text-primary">
+              らくらく受発注システム
+            </h1>
+            <p className="text-[13px] text-text-secondary">
+              メールアドレスとパスワードでログインしてください
+            </p>
+          </div>
         </div>
 
         {error && (
-          <div className="mb-5 rounded-xl border border-danger bg-danger-light px-4 py-3 text-[14px] font-semibold text-danger">
+          <div className="mb-6 rounded-xl border border-danger bg-danger-light px-4 py-3 text-[14px] font-semibold text-danger">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div>
             <label
               htmlFor="email"
@@ -97,7 +99,7 @@ export default function LoginPage() {
             type="submit"
             disabled={isPending}
             size="lg"
-            className="mt-2 w-full"
+            className="mt-4 w-full"
           >
             {isPending ? "ログイン中..." : "ログインする"}
           </Button>
