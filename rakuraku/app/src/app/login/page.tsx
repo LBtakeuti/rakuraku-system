@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -92,13 +93,14 @@ export default function LoginPage() {
             />
           </div>
 
-          <button
+          <Button
             type="submit"
             disabled={isPending}
-            className="mt-2 w-full rounded-xl bg-primary px-5 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(15,23,42,0.06)] transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+            size="lg"
+            className="mt-2 w-full"
           >
             {isPending ? "ログイン中..." : "ログインする"}
-          </button>
+          </Button>
         </form>
       </div>
     </div>
