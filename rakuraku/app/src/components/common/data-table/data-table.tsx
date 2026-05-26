@@ -54,7 +54,7 @@ export function DataTable<T>({
                 <th
                   key={c.key}
                   className={cn(
-                    "px-4 py-3.5",
+                    "px-4 py-4",
                     c.width,
                     c.align === "right" && "text-right",
                     c.align === "center" && "text-center"
@@ -63,7 +63,7 @@ export function DataTable<T>({
                   {c.header}
                 </th>
               ))}
-              {trailing && <th className="px-4 py-3.5" />}
+              {trailing && <th className="px-4 py-4" />}
             </tr>
           </thead>
           <tbody>
@@ -90,7 +90,7 @@ export function DataTable<T>({
                   <td
                     key={c.key}
                     className={cn(
-                      "px-4 py-4",
+                      "px-4 py-5",
                       c.align === "right" && "text-right",
                       c.align === "center" && "text-center"
                     )}
@@ -99,7 +99,7 @@ export function DataTable<T>({
                   </td>
                 ))}
                 {trailing && (
-                  <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
+                  <td className="px-4 py-5" onClick={(e) => e.stopPropagation()}>
                     {trailing(r)}
                   </td>
                 )}

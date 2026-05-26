@@ -10,7 +10,7 @@ export default async function SettingsPage() {
     <>
       <TopHeader />
       <PageBar title="設定" />
-      <main className="mx-auto w-full max-w-[800px] px-10 py-10">
+      <main className="mx-auto w-full max-w-[800px] px-10 py-12">
         <SettingsForm initial={company} />
       </main>
     </>

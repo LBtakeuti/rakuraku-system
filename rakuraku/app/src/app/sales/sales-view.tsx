@@ -165,7 +165,7 @@ export function SalesView({
         />
       </div>
 
-      <div className="mb-8 rounded-2xl border border-border-light bg-bg-surface p-5 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <div className="mb-8 rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
         <SearchBar
           initialValue={query}
           placeholder="納品書番号、お客様名で検索..."
@@ -211,7 +211,7 @@ function SummaryCard({
   value: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border-light bg-bg-surface p-5 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+    <div className="rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
       <div
         className={cn(
           "mb-3 flex h-12 w-12 items-center justify-center rounded-xl",

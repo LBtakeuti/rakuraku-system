@@ -8,7 +8,7 @@ type PageBarProps = {
 
 export function PageBar({ title, backTo = "/" }: PageBarProps) {
   return (
-    <div className="flex items-center gap-5 border-b border-border-light bg-bg-surface px-10 py-5 mb-2">
+    <div className="flex items-center gap-5 border-b border-border-light bg-bg-surface px-10 py-6">
       <Link
         href={backTo}
         className="inline-flex items-center gap-2 rounded-[10px] border border-border-default bg-bg-surface px-[18px] py-2.5 text-[15px] font-semibold text-text-primary shadow-[0_1px_3px_rgba(15,23,42,0.05)] transition-colors hover:border-primary hover:bg-primary-lighter hover:text-primary"

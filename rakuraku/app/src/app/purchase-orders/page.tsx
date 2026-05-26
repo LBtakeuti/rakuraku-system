@@ -38,7 +38,7 @@ export default async function PurchaseOrdersPage({
     <>
       <TopHeader />
       <PageBar title="発注を見る" />
-      <main className="mx-auto w-full max-w-[1280px] px-10 py-10">
+      <main className="mx-auto w-full max-w-[1280px] px-10 py-12">
         <PurchaseOrdersTable
           rows={rows}
           total={total}

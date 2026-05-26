@@ -10,7 +10,7 @@ export default async function CustomerNewPage() {
     <>
       <TopHeader />
       <PageBar title="新しいお客様を追加する" backTo="/customers" />
-      <main className="mx-auto w-full max-w-[920px] px-10 py-10">
+      <main className="mx-auto w-full max-w-[920px] px-10 py-12">
         <CustomerForm mode="create" staffOptions={staffOptions} action={createCustomer} />
       </main>
     </>

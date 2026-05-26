@@ -42,7 +42,7 @@ export default async function OrderDetailPage({
     <>
       <TopHeader />
       <PageBar title={`受注詳細：${order.orderNo}`} backTo="/orders" />
-      <main className="mx-auto w-full max-w-[1100px] px-10 py-10">
+      <main className="mx-auto w-full max-w-[1100px] px-10 py-12">
         <section className="mb-8 rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -91,14 +91,14 @@ export default async function OrderDetailPage({
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-border-light bg-bg-muted text-[13px] font-semibold text-text-secondary">
-                  <th className="w-12 px-4 py-4 text-center">行</th>
-                  <th className="px-4 py-4">商品</th>
-                  <th className="w-20 px-4 py-4 text-right">数量</th>
-                  <th className="w-28 px-4 py-4 text-right">単価</th>
-                  <th className="w-28 px-4 py-4 text-right">金額</th>
-                  <th className="w-16 px-4 py-4 text-center">税率</th>
-                  <th className="w-28 px-4 py-4">仕入方法</th>
-                  <th className="w-24 px-4 py-4 text-right">納品済み</th>
+                  <th className="w-12 px-4 py-5 text-center">行</th>
+                  <th className="px-4 py-5">商品</th>
+                  <th className="w-20 px-4 py-5 text-right">数量</th>
+                  <th className="w-28 px-4 py-5 text-right">単価</th>
+                  <th className="w-28 px-4 py-5 text-right">金額</th>
+                  <th className="w-16 px-4 py-5 text-center">税率</th>
+                  <th className="w-28 px-4 py-5">仕入方法</th>
+                  <th className="w-24 px-4 py-5 text-right">納品済み</th>
                 </tr>
               </thead>
               <tbody>
@@ -107,31 +107,31 @@ export default async function OrderDetailPage({
                     key={l.id}
                     className="border-b border-border-light text-[14px] last:border-b-0"
                   >
-                    <td className="px-4 py-4 text-center font-mono tabular-nums text-text-secondary">
+                    <td className="px-4 py-5 text-center font-mono tabular-nums text-text-secondary">
                       {l.lineNo}
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-4 py-5">
                       <div className="font-bold">{l.productNameSnapshot}</div>
                       <div className="text-[12px] text-text-muted">
                         {l.productCode}
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-right font-mono tabular-nums">
+                    <td className="px-4 py-5 text-right font-mono tabular-nums">
                       {l.quantity.toLocaleString("ja-JP")}
                     </td>
-                    <td className="px-4 py-4 text-right font-mono tabular-nums">
+                    <td className="px-4 py-5 text-right font-mono tabular-nums">
                       {formatYen(l.unitPrice)}
                     </td>
-                    <td className="px-4 py-4 text-right font-mono tabular-nums font-semibold">
+                    <td className="px-4 py-5 text-right font-mono tabular-nums font-semibold">
                       {formatYen(l.amount)}
                     </td>
-                    <td className="px-4 py-4 text-center text-[13px]">
+                    <td className="px-4 py-5 text-center text-[13px]">
                       {(l.taxRate * 100).toFixed(0)}%
                     </td>
-                    <td className="px-4 py-4 text-[13px] text-text-secondary">
+                    <td className="px-4 py-5 text-[13px] text-text-secondary">
                       {ORDER_TYPE_LABEL[l.orderType]}
                     </td>
-                    <td className="px-4 py-4 text-right font-mono tabular-nums text-text-secondary">
+                    <td className="px-4 py-5 text-right font-mono tabular-nums text-text-secondary">
                       {l.fulfilledQuantity.toLocaleString("ja-JP")}
                     </td>
                   </tr>

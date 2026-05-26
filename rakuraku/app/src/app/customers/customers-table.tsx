@@ -76,7 +76,7 @@ export function CustomersTable({
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap gap-3">
+      <div className="mb-8 flex flex-wrap gap-3">
         <Link
           href="/customers/new"
           className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(15,23,42,0.06)] transition-colors hover:bg-primary-hover"
@@ -95,8 +95,8 @@ export function CustomersTable({
         </button>
       </div>
 
-      <div className="mb-8 rounded-2xl border border-border-light bg-bg-surface p-5 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
-        <div className="mb-3">
+      <div className="mb-8 rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+        <div className="mb-4">
           <SearchBar
             initialValue={query}
             placeholder="お客様の名前、コード、フリガナで検索..."

@@ -8,7 +8,7 @@ export default function ProductNewPage() {
     <>
       <TopHeader />
       <PageBar title="新しい商品を追加する" backTo="/products" />
-      <main className="mx-auto w-full max-w-[920px] px-10 py-10">
+      <main className="mx-auto w-full max-w-[920px] px-10 py-12">
         <ProductForm mode="create" action={createProduct} />
       </main>
     </>
