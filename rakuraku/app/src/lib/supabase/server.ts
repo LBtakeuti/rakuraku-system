@@ -4,14 +4,18 @@ import { cookies } from "next/headers";
 export async function createClient() {
   const cookieStore = await cookies();
 
-  // Docker内ではSUPABASE_INTERNAL_URL（host.docker.internal）を使用し、
-  // ホスト側のSupabaseに到達する。ブラウザ用のNEXT_PUBLIC_*はそのまま維持。
   const supabaseUrl =
     process.env.SUPABASE_INTERNAL_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!;
 
+  // SKIP_AUTH=true（開発テスト用）の場合、service_role keyを使用してRLSをバイパス
+  const supabaseKey =
+    process.env.SKIP_AUTH === "true" && process.env.SUPABASE_SERVICE_ROLE_KEY
+      ? process.env.SUPABASE_SERVICE_ROLE_KEY
+      : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
   return createServerClient(
     supabaseUrl,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseKey,
     {
       cookies: {
         getAll() {
