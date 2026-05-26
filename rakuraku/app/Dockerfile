@@ -4,8 +4,8 @@ RUN npm install -g pnpm@10
 
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --network-timeout 120000
+COPY package.json package-lock.json ./
+RUN pnpm import && pnpm install --frozen-lockfile
 
 COPY . .
 
