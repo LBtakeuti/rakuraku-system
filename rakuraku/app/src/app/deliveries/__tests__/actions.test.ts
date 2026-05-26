@@ -45,7 +45,7 @@ describe("confirmDelivery（バリデーション）", () => {
   it("payload が無いと formError を返す", async () => {
     const r = await confirmDelivery(null, new FormData());
     expect(r).toEqual({
-      ok: false,
+      success: false,
       fieldErrors: {},
       formError: "送信データが壊れています",
     });
@@ -56,7 +56,7 @@ describe("confirmDelivery（バリデーション）", () => {
     fd.set("payload", "{invalid}");
     const r = await confirmDelivery(null, fd);
     expect(r).toEqual({
-      ok: false,
+      success: false,
       fieldErrors: {},
       formError: "送信データの形式が不正です",
     });
@@ -67,8 +67,8 @@ describe("confirmDelivery（バリデーション）", () => {
       null,
       makeFormData({ orderIds: [], deliveryDate: "2026-05-22" })
     );
-    expect(r.ok).toBe(false);
-    if (!r.ok) {
+    expect(r.success).toBe(false);
+    if (!r.success) {
       expect(Object.keys(r.fieldErrors).length).toBeGreaterThan(0);
     }
   });
@@ -302,8 +302,8 @@ describe("confirmDelivery（補償処理 / rollback）", () => {
       null,
       makeFormData({ orderIds: [ORDER_ID], deliveryDate: "2026-05-22" })
     );
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
+    expect(result.success).toBe(false);
+    if (!result.success) {
       expect(result.formError).toMatch(/すべての受注で納品処理に失敗しました/);
       expect(result.formError).toMatch(/在庫不足/);
     }

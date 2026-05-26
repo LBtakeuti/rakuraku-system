@@ -72,7 +72,7 @@ describe("createSalesOrder（バリデーション）", () => {
   it("payload が無いと formError を返す", async () => {
     const r = await createSalesOrder(null, new FormData());
     expect(r).toEqual({
-      ok: false,
+      success: false,
       fieldErrors: {},
       formError: "送信データが壊れています",
     });
@@ -83,7 +83,7 @@ describe("createSalesOrder（バリデーション）", () => {
     fd.set("payload", "{invalid}");
     const r = await createSalesOrder(null, fd);
     expect(r).toEqual({
-      ok: false,
+      success: false,
       fieldErrors: {},
       formError: "送信データの形式が不正です",
     });
@@ -94,8 +94,8 @@ describe("createSalesOrder（バリデーション）", () => {
       null,
       makeFormData({ ...validBase, customerCode: "", lines: [] })
     );
-    expect(r.ok).toBe(false);
-    if (!r.ok) {
+    expect(r.success).toBe(false);
+    if (!r.success) {
       // customerCode / lines のどちらかが含まれる
       expect(Object.keys(r.fieldErrors).length).toBeGreaterThan(0);
     }
@@ -666,7 +666,7 @@ describe("createSalesOrder（補償処理 / rollback）", () => {
 
     const result = await createSalesOrder(null, makeFormData(payload));
     expect(result).toEqual({
-      ok: false,
+      success: false,
       fieldErrors: {},
       formError: "明細 INSERT 失敗",
     });
@@ -722,8 +722,8 @@ describe("createSalesOrder（補償処理 / rollback）", () => {
     };
 
     const result = await createSalesOrder(null, makeFormData(payload));
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
+    expect(result.success).toBe(false);
+    if (!result.success) {
       expect(result.formError).toBe("引当 INSERT 失敗");
     }
 

@@ -43,7 +43,7 @@ describe("confirmReceiving（バリデーション）", () => {
   it("payload が無いと formError を返す", async () => {
     const r = await confirmReceiving(null, new FormData());
     expect(r).toEqual({
-      ok: false,
+      success: false,
       fieldErrors: {},
       formError: "送信データが壊れています",
     });
@@ -54,7 +54,7 @@ describe("confirmReceiving（バリデーション）", () => {
     fd.set("payload", "{invalid}");
     const r = await confirmReceiving(null, fd);
     expect(r).toEqual({
-      ok: false,
+      success: false,
       fieldErrors: {},
       formError: "送信データの形式が不正です",
     });
@@ -74,8 +74,8 @@ describe("confirmReceiving（バリデーション）", () => {
       ],
     };
     const r = await confirmReceiving(null, makeFormData(payload));
-    expect(r.ok).toBe(false);
-    if (!r.ok) {
+    expect(r.success).toBe(false);
+    if (!r.success) {
       expect(Object.keys(r.fieldErrors).length).toBeGreaterThan(0);
     }
   });
@@ -96,7 +96,7 @@ describe("confirmReceiving（バリデーション）", () => {
       ],
     };
     const r = await confirmReceiving(null, makeFormData(payload));
-    expect(r.ok).toBe(false);
+    expect(r.success).toBe(false);
   });
 });
 
@@ -339,8 +339,8 @@ describe("confirmReceiving（補償処理 / rollback）", () => {
       ],
     };
     const r = await confirmReceiving(null, makeFormData(payload));
-    expect(r.ok).toBe(false);
-    if (!r.ok) {
+    expect(r.success).toBe(false);
+    if (!r.success) {
       expect(r.formError).toMatch(/既定の倉庫/);
     }
     expect(sb._calls.delete).toHaveLength(0);
@@ -378,8 +378,8 @@ describe("confirmReceiving（補償処理 / rollback）", () => {
     };
 
     const r = await confirmReceiving(null, makeFormData(payload));
-    expect(r.ok).toBe(false);
-    if (!r.ok) {
+    expect(r.success).toBe(false);
+    if (!r.success) {
       expect(r.formError).toBe("在庫移動の作成に失敗");
     }
 
@@ -423,7 +423,7 @@ describe("confirmReceiving（補償処理 / rollback）", () => {
       ],
     };
     const r = await confirmReceiving(null, makeFormData(payload));
-    expect(r.ok).toBe(false);
+    expect(r.success).toBe(false);
 
     // product_stock の UPDATE は加算（17）と補償（10 に戻す）の 2 回
     const stockUpdates = sb._calls.update.filter(

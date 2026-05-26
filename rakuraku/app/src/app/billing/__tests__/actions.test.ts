@@ -84,7 +84,7 @@ describe("issueBillingStatements（バリデーション）", () => {
   it("payload が無いと formError", async () => {
     const r = await issueBillingStatements(null, new FormData());
     expect(r).toEqual({
-      ok: false,
+      success: false,
       fieldErrors: {},
       formError: "送信データが壊れています",
     });
@@ -95,7 +95,7 @@ describe("issueBillingStatements（バリデーション）", () => {
     fd.set("payload", "{bad");
     const r = await issueBillingStatements(null, fd);
     expect(r).toEqual({
-      ok: false,
+      success: false,
       fieldErrors: {},
       formError: "送信データの形式が不正です",
     });
@@ -106,8 +106,8 @@ describe("issueBillingStatements（バリデーション）", () => {
       null,
       makeFormData({ ...validBase, customerCodes: [] })
     );
-    expect(r.ok).toBe(false);
-    if (!r.ok) {
+    expect(r.success).toBe(false);
+    if (!r.success) {
       expect(Object.keys(r.fieldErrors).length).toBeGreaterThan(0);
     }
   });

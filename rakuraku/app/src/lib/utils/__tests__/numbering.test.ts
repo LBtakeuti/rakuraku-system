@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { createSupabaseMock } from "@/test-utils/supabase-mock";
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(),
@@ -17,106 +16,104 @@ import {
 
 const mockedCreate = vi.mocked(createClient);
 
+function buildRpcMock(data: unknown, error: { message: string } | null = null) {
+  const rpcFn = vi.fn().mockResolvedValue({ data, error });
+  return { rpc: rpcFn };
+}
+
 beforeEach(() => {
   mockedCreate.mockReset();
 });
 
-function mockTable(table: string, lastRow: Record<string, string> | null) {
-  return createSupabaseMock({
-    [table]: { data: lastRow ? [lastRow] : [] },
-  });
-}
-
 describe("nextCustomerCode", () => {
-  it("既存最大が 000199 のとき 000200 を返す", async () => {
-    mockedCreate.mockResolvedValue(
-      mockTable("customer", { customer_code: "000199" }) as never
-    );
+  it("RPC generate_customer_code の戻り値をそのまま返す", async () => {
+    mockedCreate.mockResolvedValue(buildRpcMock("000200") as never);
     await expect(nextCustomerCode()).resolves.toBe("000200");
   });
 
-  it("既存レコードがゼロのとき 000001 を返す", async () => {
-    mockedCreate.mockResolvedValue(mockTable("customer", null) as never);
-    await expect(nextCustomerCode()).resolves.toBe("000001");
-  });
-
-  it("既存最大が非数値（例: ABCDEF）の場合は 000001 にフォールバック", async () => {
+  it("RPC がエラーを返すと throw する", async () => {
     mockedCreate.mockResolvedValue(
-      mockTable("customer", { customer_code: "ABCDEF" }) as never
+      buildRpcMock(null, { message: "採番失敗" }) as never
     );
-    await expect(nextCustomerCode()).resolves.toBe("000001");
-  });
-
-  it("6桁に満たない場合はゼロ埋めされる（既存 5 → 000006）", async () => {
-    mockedCreate.mockResolvedValue(
-      mockTable("customer", { customer_code: "000005" }) as never
-    );
-    await expect(nextCustomerCode()).resolves.toBe("000006");
+    await expect(nextCustomerCode()).rejects.toThrow("お客様コードの採番に失敗しました");
   });
 });
 
 describe("nextProductCode", () => {
-  it("8桁ゼロ埋めで採番される（既存 00000010 → 00000011）", async () => {
-    mockedCreate.mockResolvedValue(
-      mockTable("product", { product_code: "00000010" }) as never
-    );
+  it("RPC generate_product_code の戻り値をそのまま返す", async () => {
+    mockedCreate.mockResolvedValue(buildRpcMock("00000011") as never);
     await expect(nextProductCode()).resolves.toBe("00000011");
   });
 
-  it("既存ゼロ件で 00000001 を返す", async () => {
-    mockedCreate.mockResolvedValue(mockTable("product", null) as never);
-    await expect(nextProductCode()).resolves.toBe("00000001");
+  it("RPC がエラーを返すと throw する", async () => {
+    mockedCreate.mockResolvedValue(
+      buildRpcMock(null, { message: "採番失敗" }) as never
+    );
+    await expect(nextProductCode()).rejects.toThrow("商品コードの採番に失敗しました");
   });
 });
 
 describe("nextSalesOrderNumber", () => {
-  it("既存 800000099 → 800000100（prefix '8' + 8桁）", async () => {
-    mockedCreate.mockResolvedValue(
-      mockTable("sales_order", { order_no: "800000099" }) as never
-    );
+  it("RPC generate_order_number の戻り値をそのまま返す", async () => {
+    mockedCreate.mockResolvedValue(buildRpcMock("800000100") as never);
     await expect(nextSalesOrderNumber()).resolves.toBe("800000100");
   });
 
-  it("既存ゼロ件 → 800000001", async () => {
-    mockedCreate.mockResolvedValue(mockTable("sales_order", null) as never);
-    await expect(nextSalesOrderNumber()).resolves.toBe("800000001");
+  it("RPC がエラーを返すと throw する", async () => {
+    mockedCreate.mockResolvedValue(
+      buildRpcMock(null, { message: "採番失敗" }) as never
+    );
+    await expect(nextSalesOrderNumber()).rejects.toThrow("受注番号の採番に失敗しました");
   });
 });
 
 describe("nextPurchaseOrderNumber", () => {
-  it("既存 P00000007 → P00000008（prefix 'P' + 8桁）", async () => {
-    mockedCreate.mockResolvedValue(
-      mockTable("purchase_order", {
-        purchase_order_no: "P00000007",
-      }) as never
-    );
+  it("RPC generate_purchase_order_number の戻り値をそのまま返す", async () => {
+    mockedCreate.mockResolvedValue(buildRpcMock("P00000008") as never);
     await expect(nextPurchaseOrderNumber()).resolves.toBe("P00000008");
+  });
+
+  it("RPC がエラーを返すと throw する", async () => {
+    mockedCreate.mockResolvedValue(
+      buildRpcMock(null, { message: "採番失敗" }) as never
+    );
+    await expect(nextPurchaseOrderNumber()).rejects.toThrow("発注番号の採番に失敗しました");
   });
 });
 
 describe("nextSalesInvoiceNumber", () => {
-  it("既存 N00000123 → N00000124（prefix 'N' + 8桁）", async () => {
-    mockedCreate.mockResolvedValue(
-      mockTable("sales_invoice", { invoice_no: "N00000123" }) as never
-    );
+  it("RPC generate_delivery_number の戻り値をそのまま返す", async () => {
+    mockedCreate.mockResolvedValue(buildRpcMock("N00000124") as never);
     await expect(nextSalesInvoiceNumber()).resolves.toBe("N00000124");
+  });
+
+  it("RPC がエラーを返すと throw する", async () => {
+    mockedCreate.mockResolvedValue(
+      buildRpcMock(null, { message: "採番失敗" }) as never
+    );
+    await expect(nextSalesInvoiceNumber()).rejects.toThrow("納品書番号の採番に失敗しました");
   });
 });
 
 describe("nextBillingNumber", () => {
-  it("yearMonth=202605 で既存 B202605004 → B202605005（prefix + 3桁）", async () => {
-    mockedCreate.mockResolvedValue(
-      mockTable("billing_statement", {
-        statement_no: "B202605004",
-      }) as never
-    );
+  it("RPC generate_billing_number の戻り値をそのまま返す", async () => {
+    mockedCreate.mockResolvedValue(buildRpcMock("B202605005") as never);
     await expect(nextBillingNumber("202605")).resolves.toBe("B202605005");
   });
 
-  it("当月分が無ければ 001 から始まる", async () => {
+  it("yearMonth 引数が rpc に渡される", async () => {
+    const mock = buildRpcMock("B202605001");
+    mockedCreate.mockResolvedValue(mock as never);
+    await nextBillingNumber("202605");
+    expect(mock.rpc).toHaveBeenCalledWith("generate_billing_number", {
+      year_month: "202605",
+    });
+  });
+
+  it("RPC がエラーを返すと throw する", async () => {
     mockedCreate.mockResolvedValue(
-      mockTable("billing_statement", null) as never
+      buildRpcMock(null, { message: "採番失敗" }) as never
     );
-    await expect(nextBillingNumber("202605")).resolves.toBe("B202605001");
+    await expect(nextBillingNumber("202605")).rejects.toThrow("請求書番号の採番に失敗しました");
   });
 });
