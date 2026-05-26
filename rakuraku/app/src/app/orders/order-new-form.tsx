@@ -131,9 +131,9 @@ export function OrderNewForm() {
     startTransition(() => formAction(fd));
   };
 
-  const formError = state && !state.ok ? state.formError : undefined;
+  const formError = state && !state.success ? state.formError : undefined;
   const fieldErrors =
-    state && !state.ok
+    state && !state.success
       ? Object.values(state.fieldErrors).flatMap((e) => e ?? [])
       : [];
   const clientErrorMessages = Object.values(form.formState.errors)

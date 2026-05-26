@@ -13,9 +13,9 @@ import { findFifoLots } from "@/lib/supabase/queries/sales-order";
 type SupabaseLike = Awaited<ReturnType<typeof createClient>>;
 
 export type SalesOrderActionResult =
-  | { ok: true; orderId: string; orderNo: string }
+  | { success: true; orderId: string; orderNo: string }
   | {
-      ok: false;
+      success: false;
       fieldErrors: Record<string, string[] | undefined>;
       formError?: string;
     };
@@ -96,17 +96,17 @@ export async function createSalesOrder(
 ): Promise<SalesOrderActionResult> {
   const payloadJson = formData.get("payload");
   if (typeof payloadJson !== "string") {
-    return { ok: false, fieldErrors: {}, formError: "送信データが壊れています" };
+    return { success: false, fieldErrors: {}, formError: "送信データが壊れています" };
   }
   let parsedRaw: unknown;
   try {
     parsedRaw = JSON.parse(payloadJson);
   } catch {
-    return { ok: false, fieldErrors: {}, formError: "送信データの形式が不正です" };
+    return { success: false, fieldErrors: {}, formError: "送信データの形式が不正です" };
   }
   const parsed = salesOrderFormSchema.safeParse(parsedRaw);
   if (!parsed.success) {
-    return { ok: false, fieldErrors: toFieldErrors(parsed.error.issues) };
+    return { success: false, fieldErrors: toFieldErrors(parsed.error.issues) };
   }
   const v = parsed.data;
 
@@ -352,7 +352,7 @@ export async function createSalesOrder(
       compensations: compensations.length,
     });
     await rollback(supabase, compensations);
-    return { ok: false, fieldErrors: {}, formError: message };
+    return { success: false, fieldErrors: {}, formError: message };
   }
 
   revalidatePath("/orders");

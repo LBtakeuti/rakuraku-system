@@ -107,9 +107,9 @@ export function BillingForm({
   const grandTotal = selectedSummary.reduce((a, s) => a + s.totalDue, 0);
   const allSelected = summary.length > 0 && selected.size === summary.length;
 
-  const formError = state && !state.ok ? state.formError : undefined;
+  const formError = state && !state.success ? state.formError : undefined;
   const fieldErrors =
-    state && !state.ok
+    state && !state.success
       ? Object.values(state.fieldErrors).flatMap((e) => e ?? [])
       : [];
   const allErrors = Array.from(

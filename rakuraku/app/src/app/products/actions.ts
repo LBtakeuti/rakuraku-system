@@ -7,9 +7,9 @@ import { productFormSchema } from "@/lib/validations/product";
 import { nextProductCode } from "@/lib/utils/numbering";
 
 export type ProductActionResult =
-  | { ok: true; productCode: string }
+  | { success: true; productCode: string }
   | {
-      ok: false;
+      success: false;
       fieldErrors: Record<string, string[] | undefined>;
       formError?: string;
     };
@@ -33,7 +33,7 @@ export async function createProduct(
   const raw = Object.fromEntries(formData.entries());
   const parsed = productFormSchema.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, fieldErrors: toFieldErrors(parsed.error.issues) };
+    return { success: false, fieldErrors: toFieldErrors(parsed.error.issues) };
   }
   const v = parsed.data;
 
@@ -47,10 +47,10 @@ export async function createProduct(
       .select("product_code")
       .eq("product_code", code)
       .maybeSingle();
-    if (exErr) return { ok: false, fieldErrors: {}, formError: exErr.message };
+    if (exErr) return { success: false, fieldErrors: {}, formError: exErr.message };
     if (existing) {
       return {
-        ok: false,
+        success: false,
         fieldErrors: {
           productCode: ["この商品コードはすでに使われています"],
         },
@@ -73,7 +73,7 @@ export async function createProduct(
     is_stocked: v.defaultOrderType === "stock",
   });
   if (error) {
-    return { ok: false, fieldErrors: {}, formError: error.message };
+    return { success: false, fieldErrors: {}, formError: error.message };
   }
 
   if (v.defaultOrderType === "stock" && v.initialStock && v.initialStock > 0) {
@@ -85,7 +85,7 @@ export async function createProduct(
       .maybeSingle();
     if (whErr || !wh) {
       return {
-        ok: false,
+        success: false,
         fieldErrors: {},
         formError:
           "倉庫が登録されていません。先に倉庫を作成してから商品を登録してください。",
@@ -97,7 +97,7 @@ export async function createProduct(
       quantity_on_hand: v.initialStock,
     });
     if (stErr) {
-      return { ok: false, fieldErrors: {}, formError: stErr.message };
+      return { success: false, fieldErrors: {}, formError: stErr.message };
     }
   }
 
@@ -113,7 +113,7 @@ export async function updateProduct(
   const raw = Object.fromEntries(formData.entries());
   const parsed = productFormSchema.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, fieldErrors: toFieldErrors(parsed.error.issues) };
+    return { success: false, fieldErrors: toFieldErrors(parsed.error.issues) };
   }
   const v = parsed.data;
   const supabase = await createClient();
@@ -136,7 +136,7 @@ export async function updateProduct(
     })
     .eq("product_code", productCode);
   if (error) {
-    return { ok: false, fieldErrors: {}, formError: error.message };
+    return { success: false, fieldErrors: {}, formError: error.message };
   }
   revalidatePath("/products");
   revalidatePath(`/products/${productCode}/edit`);

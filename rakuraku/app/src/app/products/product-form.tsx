@@ -49,7 +49,7 @@ export function ProductForm({ mode, initial, action }: ProductFormProps) {
 
   const fieldError = (key: keyof ProductFormValues) =>
     clientErrors[key] ||
-    (state && !state.ok ? state.fieldErrors[key]?.[0] : undefined);
+    (state && !state.success ? state.fieldErrors[key]?.[0] : undefined);
 
   const update = <K extends keyof ProductFormValues>(
     key: K,
@@ -80,7 +80,7 @@ export function ProductForm({ mode, initial, action }: ProductFormProps) {
     startTransition(() => formAction(fd));
   };
 
-  const formError = state && !state.ok ? state.formError : undefined;
+  const formError = state && !state.success ? state.formError : undefined;
   const showStock = values.defaultOrderType === "stock";
 
   return (

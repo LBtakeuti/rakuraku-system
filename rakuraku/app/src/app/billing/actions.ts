@@ -12,13 +12,13 @@ type SupabaseLike = Awaited<ReturnType<typeof createClient>>;
 
 export type BillingActionResult =
   | {
-      ok: true;
+      success: true;
       issuedCount: number;
       failedCount: number;
       statementIds: string[];
     }
   | {
-      ok: false;
+      success: false;
       fieldErrors: Record<string, string[] | undefined>;
       formError?: string;
     };
@@ -174,17 +174,17 @@ export async function issueBillingStatements(
 ): Promise<BillingActionResult> {
   const payloadJson = formData.get("payload");
   if (typeof payloadJson !== "string") {
-    return { ok: false, fieldErrors: {}, formError: "送信データが壊れています" };
+    return { success: false, fieldErrors: {}, formError: "送信データが壊れています" };
   }
   let parsedRaw: unknown;
   try {
     parsedRaw = JSON.parse(payloadJson);
   } catch {
-    return { ok: false, fieldErrors: {}, formError: "送信データの形式が不正です" };
+    return { success: false, fieldErrors: {}, formError: "送信データの形式が不正です" };
   }
   const parsed = billingIssueSchema.safeParse(parsedRaw);
   if (!parsed.success) {
-    return { ok: false, fieldErrors: toFieldErrors(parsed.error.issues) };
+    return { success: false, fieldErrors: toFieldErrors(parsed.error.issues) };
   }
   const v = parsed.data;
 
@@ -250,7 +250,7 @@ export async function issueBillingStatements(
 
   if (statementIds.length === 0 && failedCount === 0) {
     return {
-      ok: false,
+      success: false,
       fieldErrors: {},
       formError: "発行対象がありませんでした",
     };

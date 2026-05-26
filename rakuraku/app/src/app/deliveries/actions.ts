@@ -10,13 +10,13 @@ type SupabaseLike = Awaited<ReturnType<typeof createClient>>;
 
 export type DeliveryActionResult =
   | {
-      ok: true;
+      success: true;
       invoiceCount: number;
       invoiceIds: string[];
       failedOrders: { orderId: string; message: string }[];
     }
   | {
-      ok: false;
+      success: false;
       fieldErrors: Record<string, string[] | undefined>;
       formError?: string;
     };
@@ -302,17 +302,17 @@ export async function confirmDelivery(
 ): Promise<DeliveryActionResult> {
   const payloadJson = formData.get("payload");
   if (typeof payloadJson !== "string") {
-    return { ok: false, fieldErrors: {}, formError: "送信データが壊れています" };
+    return { success: false, fieldErrors: {}, formError: "送信データが壊れています" };
   }
   let parsedRaw: unknown;
   try {
     parsedRaw = JSON.parse(payloadJson);
   } catch {
-    return { ok: false, fieldErrors: {}, formError: "送信データの形式が不正です" };
+    return { success: false, fieldErrors: {}, formError: "送信データの形式が不正です" };
   }
   const parsed = deliveryConfirmSchema.safeParse(parsedRaw);
   if (!parsed.success) {
-    return { ok: false, fieldErrors: toFieldErrors(parsed.error.issues) };
+    return { success: false, fieldErrors: toFieldErrors(parsed.error.issues) };
   }
   const v = parsed.data;
 
@@ -344,7 +344,7 @@ export async function confirmDelivery(
 
   if (invoiceIds.length === 0) {
     return {
-      ok: false,
+      success: false,
       fieldErrors: {},
       formError:
         failedOrders.length > 0

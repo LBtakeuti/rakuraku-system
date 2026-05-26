@@ -7,8 +7,8 @@ import { customerFormSchema } from "@/lib/validations/customer";
 import { nextCustomerCode } from "@/lib/utils/numbering";
 
 export type CustomerActionResult =
-  | { ok: true; customerCode: string }
-  | { ok: false; fieldErrors: Record<string, string[] | undefined>; formError?: string };
+  | { success: true; customerCode: string }
+  | { success: false; fieldErrors: Record<string, string[] | undefined>; formError?: string };
 
 function toFieldErrors(
   errors: readonly { path: readonly PropertyKey[]; message: string }[]
@@ -29,7 +29,7 @@ export async function createCustomer(
   const raw = Object.fromEntries(formData.entries());
   const parsed = customerFormSchema.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, fieldErrors: toFieldErrors(parsed.error.issues) };
+    return { success: false, fieldErrors: toFieldErrors(parsed.error.issues) };
   }
   const v = parsed.data;
 
@@ -43,10 +43,10 @@ export async function createCustomer(
       .select("customer_code")
       .eq("customer_code", code)
       .maybeSingle();
-    if (exErr) return { ok: false, fieldErrors: {}, formError: exErr.message };
+    if (exErr) return { success: false, fieldErrors: {}, formError: exErr.message };
     if (existing) {
       return {
-        ok: false,
+        success: false,
         fieldErrors: {
           customerCode: ["このお客様コードはすでに使われています"],
         },
@@ -75,7 +75,7 @@ export async function createCustomer(
     tax_rounding: v.taxRounding,
   });
   if (error) {
-    return { ok: false, fieldErrors: {}, formError: error.message };
+    return { success: false, fieldErrors: {}, formError: error.message };
   }
 
   revalidatePath("/customers");
@@ -90,7 +90,7 @@ export async function updateCustomer(
   const raw = Object.fromEntries(formData.entries());
   const parsed = customerFormSchema.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, fieldErrors: toFieldErrors(parsed.error.issues) };
+    return { success: false, fieldErrors: toFieldErrors(parsed.error.issues) };
   }
   const v = parsed.data;
   const supabase = await createClient();
@@ -118,7 +118,7 @@ export async function updateCustomer(
     })
     .eq("customer_code", customerCode);
   if (error) {
-    return { ok: false, fieldErrors: {}, formError: error.message };
+    return { success: false, fieldErrors: {}, formError: error.message };
   }
   revalidatePath("/customers");
   revalidatePath(`/customers/${customerCode}/edit`);

@@ -78,7 +78,7 @@ export function CustomerForm({
 
   const fieldError = (key: keyof CustomerFormValues) =>
     clientErrors[key] ||
-    (state && !state.ok ? state.fieldErrors[key]?.[0] : undefined);
+    (state && !state.success ? state.fieldErrors[key]?.[0] : undefined);
 
   const update = <K extends keyof CustomerFormValues>(
     key: K,
@@ -166,7 +166,7 @@ export function CustomerForm({
     startTransition(() => formAction(fd));
   };
 
-  const formError = state && !state.ok ? state.formError : undefined;
+  const formError = state && !state.success ? state.formError : undefined;
 
   return (
     <form onSubmit={handleSubmit}>
