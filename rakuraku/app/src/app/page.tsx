@@ -9,6 +9,7 @@ import {
   Package,
   JapaneseYen,
   FileText,
+  Settings,
 } from "lucide-react";
 import { TopHeader } from "@/components/common/top-header";
 import { BigButton } from "@/components/common/big-button";
@@ -160,6 +161,19 @@ export default function HomePage() {
               </>
             }
             icon={FileText}
+          />
+          <BigButton
+            href="/settings"
+            color="indigo"
+            title="設定"
+            description={
+              <>
+                会社情報や
+                <br />
+                帳票設定を変更します
+              </>
+            }
+            icon={Settings}
           />
         </div>
       </main>
