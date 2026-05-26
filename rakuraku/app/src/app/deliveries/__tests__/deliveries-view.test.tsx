@@ -102,16 +102,20 @@ describe("DeliveriesView", () => {
     ).toBeNull();
   });
 
-  it("確定ボタン押下時に window.confirm が表示され、キャンセルしたら formAction が呼ばれない", async () => {
+  it("確定ボタン押下で ConfirmDialog が開き、キャンセルしたら formAction が呼ばれない", async () => {
     const user = userEvent.setup();
-    const confirmSpy = vi.fn(() => false);
-    vi.stubGlobal("confirm", confirmSpy);
 
     render(<DeliveriesView {...baseProps} />);
     await user.click(screen.getByText("#800000001"));
     await user.click(screen.getByRole("button", { name: /納品を確定する/ }));
-    expect(confirmSpy).toHaveBeenCalledTimes(1);
-    // バーが残っているので押せる状態
+
+    // ConfirmDialog が開いて確認ボタン（「確定する」）が出る
+    expect(screen.getByRole("button", { name: "確定する" })).toBeInTheDocument();
+
+    // キャンセルボタンをクリック
+    await user.click(screen.getByRole("button", { name: "やめる" }));
+
+    // ダイアログが閉じてバーは残っている（納品確定ボタンはまだ押せる状態）
     expect(
       screen.getByRole("button", { name: /納品を確定する/ })
     ).toBeInTheDocument();

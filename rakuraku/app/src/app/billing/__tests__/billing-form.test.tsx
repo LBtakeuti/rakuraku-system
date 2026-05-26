@@ -125,17 +125,23 @@ describe("BillingForm（集計後の表示と選択操作）", () => {
     expect(screen.getByText("1社")).toBeInTheDocument();
   });
 
-  it("発行ボタン押下時に window.confirm が表示され、キャンセルで formAction 未呼出", async () => {
+  it("発行ボタン押下で ConfirmDialog が開き、キャンセルで formAction 未呼出", async () => {
     const user = userEvent.setup();
-    const confirmSpy = vi.fn(() => false);
-    vi.stubGlobal("confirm", confirmSpy);
 
     render(<BillingForm {...baseProps} />);
     const issueBtn = screen.getByRole("button", {
       name: /請求書をまとめて発行する/,
     });
     await user.click(issueBtn);
-    expect(confirmSpy).toHaveBeenCalledTimes(1);
+
+    // ConfirmDialog が開いて確認ボタン（「発行する」）が出る
+    expect(screen.getByRole("button", { name: "発行する" })).toBeInTheDocument();
+
+    // キャンセルボタンをクリック
+    await user.click(screen.getByRole("button", { name: "やめる" }));
+
+    // ダイアログが閉じて formAction は呼ばれていない
+    expect(screen.queryByRole("button", { name: "発行する" })).not.toBeInTheDocument();
   });
 
   it("0 社選択だと発行ボタンが disabled", async () => {
