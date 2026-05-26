@@ -118,7 +118,7 @@ async function confirmOneOrder(
     .eq("id", orderId)
     .maybeSingle();
   if (orderErr || !order) {
-    throw new Error(orderErr?.message ?? "受注が見つかりません");
+    throw new Error("受注情報の取得に失敗しました。対象の受注が存在するか確認してください");
   }
   const previousOrderStatus = order.status as string;
 
@@ -130,7 +130,7 @@ async function confirmOneOrder(
     )
     .eq("sales_order_id", orderId)
     .order("line_no");
-  if (linesErr) throw new Error(linesErr.message);
+  if (linesErr) throw new Error("受注明細の取得に失敗しました。通信状態を確認してください");
   const orderLines = (lines ?? []) as DbLine[];
   if (orderLines.length === 0) {
     throw new Error(`受注 ${order.order_no} に明細がありません`);
@@ -166,7 +166,7 @@ async function confirmOneOrder(
     .select("id")
     .single();
   if (invErr || !inv) {
-    throw new Error(invErr?.message ?? "納品書の作成に失敗しました");
+    throw new Error("納品書の作成に失敗しました。通信状態を確認して、もう一度お試しください");
   }
   const invoiceId = inv.id as string;
   compensations.push({ kind: "delete-invoice", id: invoiceId });
@@ -189,7 +189,7 @@ async function confirmOneOrder(
       .select("id")
       .single();
     if (invLineErr || !invLine) {
-      throw new Error(invLineErr?.message ?? "納品明細の作成に失敗しました");
+      throw new Error("納品明細の作成に失敗しました。通信状態を確認して、もう一度お試しください");
     }
     compensations.push({
       kind: "delete-invoice-line",
@@ -203,7 +203,7 @@ async function confirmOneOrder(
     .from("sales_order_line_allocation")
     .select("id,sales_order_line_id,product_stock_id,quantity")
     .in("sales_order_line_id", lineIds);
-  if (allocErr) throw new Error(allocErr.message);
+  if (allocErr) throw new Error("在庫引当情報の取得に失敗しました。通信状態を確認してください");
   const allocations = (allocs ?? []) as DbAlloc[];
 
   for (const alloc of allocations) {
@@ -213,7 +213,7 @@ async function confirmOneOrder(
       .eq("id", alloc.product_stock_id)
       .single();
     if (stockErr || !stock) {
-      throw new Error(stockErr?.message ?? "在庫情報を読み込めませんでした");
+      throw new Error("在庫情報の読み込みに失敗しました。通信状態を確認してください");
     }
     const onHand = stock.quantity_on_hand as number;
     const allocated = stock.quantity_allocated as number;
@@ -230,7 +230,7 @@ async function confirmOneOrder(
         updated_at: new Date().toISOString(),
       })
       .eq("id", alloc.product_stock_id);
-    if (updErr) throw new Error(updErr.message);
+    if (updErr) throw new Error("在庫の更新に失敗しました。通信状態を確認してください");
     compensations.push({
       kind: "restore-stock",
       id: alloc.product_stock_id,
@@ -251,7 +251,7 @@ async function confirmOneOrder(
       .select("id")
       .single();
     if (mvOutErr || !mvOut) {
-      throw new Error(mvOutErr?.message ?? "在庫移動(out)の記録に失敗しました");
+      throw new Error("在庫移動の記録に失敗しました。通信状態を確認してください");
     }
     compensations.push({ kind: "delete-movement", id: mvOut.id as string });
 
@@ -267,7 +267,7 @@ async function confirmOneOrder(
       .select("id")
       .single();
     if (mvDeErr || !mvDe) {
-      throw new Error(mvDeErr?.message ?? "在庫移動(deallocate)の記録に失敗しました");
+      throw new Error("在庫引当の解除記録に失敗しました。通信状態を確認してください");
     }
     compensations.push({ kind: "delete-movement", id: mvDe.id as string });
   }
@@ -278,7 +278,7 @@ async function confirmOneOrder(
       .from("sales_order_line")
       .update({ fulfilled_quantity: l.quantity })
       .eq("id", l.id);
-    if (lineErr) throw new Error(lineErr.message);
+    if (lineErr) throw new Error("受注明細の更新に失敗しました。通信状態を確認してください");
   }
 
   // 受注のステータスを fulfilled に
@@ -286,7 +286,7 @@ async function confirmOneOrder(
     .from("sales_order")
     .update({ status: "fulfilled", updated_at: new Date().toISOString() })
     .eq("id", orderId);
-  if (statusErr) throw new Error(statusErr.message);
+  if (statusErr) throw new Error("受注ステータスの更新に失敗しました。通信状態を確認してください");
   compensations.push({
     kind: "restore-order-status",
     id: orderId,
