@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
   const { data: stmtLines, error: slErr } = await supabase
     .from("billing_statement_line")
     .select("sales_invoice_id")
-    .eq("billing_statement_id", statementId)
+    .eq("billing_statement_id", stmt.id as string)
     .order("line_no");
   if (slErr) throw slErr;
   const invoiceIds = (stmtLines ?? []).map(
@@ -207,7 +207,8 @@ export async function GET(request: NextRequest) {
       ? React.createElement(InvoiceWithDeliveryPdf, { data: docData })
       : React.createElement(InvoicePdf, { data: docData });
 
-  const buffer = await renderToBuffer(element as any);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- @react-pdf/renderer の型不整合を回避
+  const buffer = await renderToBuffer(element as unknown as React.ReactElement<any>);
 
   return new NextResponse(Buffer.from(buffer) as unknown as BodyInit, {
     headers: {

@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { Printer } from "lucide-react";
 import { TopHeader } from "@/components/common/top-header";
 import { PageBar } from "@/components/common/page-bar";
 import { StatusBadge } from "@/components/common/status-badge";

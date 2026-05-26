@@ -118,7 +118,8 @@ export async function GET(request: NextRequest) {
 
   ensureFontsRegistered();
   const buffer = await renderToBuffer(
-    React.createElement(PurchaseOrderPdf, { data: docData }) as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- @react-pdf/renderer の型不整合を回避
+    React.createElement(PurchaseOrderPdf, { data: docData }) as unknown as React.ReactElement<any>
   );
 
   return new NextResponse(Buffer.from(buffer) as unknown as BodyInit, {
