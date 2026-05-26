@@ -112,7 +112,7 @@ export function OrderLineEditor({
 
   return (
     <div>
-      <div className="overflow-hidden rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <div className="overflow-x-auto rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
         <div className="flex flex-wrap items-center gap-4 border-b border-border-light bg-primary-lighter px-4 py-2.5 text-[12px] font-semibold text-primary">
           <span className="inline-flex items-center gap-1">
             数量入力中に <Kbd>↓</Kbd> で新しい行
