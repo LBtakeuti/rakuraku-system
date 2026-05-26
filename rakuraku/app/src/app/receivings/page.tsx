@@ -25,7 +25,7 @@ export default async function ReceivingsPage({
       <>
         <TopHeader />
         <PageBar title="入荷を登録する" />
-        <main className="mx-auto w-full max-w-[1100px] px-8 py-8">
+        <main className="mx-auto w-full max-w-[1100px] px-10 py-10">
           <ReceivingForm po={po} />
         </main>
       </>
@@ -36,7 +36,7 @@ export default async function ReceivingsPage({
     <>
       <TopHeader />
       <PageBar title="入荷を登録する" />
-      <main className="mx-auto w-full max-w-[1100px] px-8 py-8">
+      <main className="mx-auto w-full max-w-[1100px] px-10 py-10">
         <PoPicker pos={pos} />
       </main>
     </>

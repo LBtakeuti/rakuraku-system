@@ -7,7 +7,7 @@ export default function OrdersNewPage() {
     <>
       <TopHeader />
       <PageBar title="注文を受ける" />
-      <main className="mx-auto w-full max-w-[1100px] px-8 py-8">
+      <main className="mx-auto w-full max-w-[1100px] px-10 py-10">
         <OrderNewForm />
       </main>
     </>

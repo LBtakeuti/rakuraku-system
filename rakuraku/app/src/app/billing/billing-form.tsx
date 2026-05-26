@@ -488,7 +488,7 @@ function StepCard({
   return (
     <section
       className={cn(
-        "mb-6 rounded-2xl border bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]",
+        "mb-8 rounded-2xl border bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]",
         disabled ? "border-border-light opacity-70" : "border-border-light"
       )}
     >

@@ -37,7 +37,7 @@ export default async function CustomersPage({
     <>
       <TopHeader />
       <PageBar title="お客様を管理する" />
-      <main className="mx-auto w-full max-w-[1280px] px-8 py-8">
+      <main className="mx-auto w-full max-w-[1280px] px-10 py-10">
         <CustomersTable
           rows={rows}
           total={total}

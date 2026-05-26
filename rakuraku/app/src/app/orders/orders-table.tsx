@@ -105,7 +105,7 @@ export function OrdersTable({
         </Link>
       </div>
 
-      <div className="mb-6 rounded-2xl border border-border-light bg-bg-surface p-5 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <div className="mb-8 rounded-2xl border border-border-light bg-bg-surface p-5 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
         <div className="mb-3">
           <SearchBar
             initialValue={query}

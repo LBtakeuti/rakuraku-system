@@ -25,8 +25,8 @@ export default async function SalesDetailPage({
     <>
       <TopHeader />
       <PageBar title={`納品書詳細：${inv.invoiceNo}`} backTo="/sales" />
-      <main className="mx-auto w-full max-w-[1100px] px-8 py-8">
-        <section className="mb-6 rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <main className="mx-auto w-full max-w-[1100px] px-10 py-10">
+        <section className="mb-8 rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
           <div className="mb-4 flex items-center gap-3">
             <span className="font-mono tabular-nums text-[22px] font-bold text-text-primary">
               {inv.invoiceNo}
@@ -65,12 +65,12 @@ export default async function SalesDetailPage({
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-border-light bg-bg-muted text-[13px] font-semibold text-text-secondary">
-                  <th className="w-12 px-3 py-3 text-center">行</th>
-                  <th className="px-3 py-3">商品</th>
-                  <th className="w-20 px-3 py-3 text-right">数量</th>
-                  <th className="w-28 px-3 py-3 text-right">単価</th>
-                  <th className="w-28 px-3 py-3 text-right">金額</th>
-                  <th className="w-16 px-3 py-3 text-center">税率</th>
+                  <th className="w-12 px-4 py-4 text-center">行</th>
+                  <th className="px-4 py-4">商品</th>
+                  <th className="w-20 px-4 py-4 text-right">数量</th>
+                  <th className="w-28 px-4 py-4 text-right">単価</th>
+                  <th className="w-28 px-4 py-4 text-right">金額</th>
+                  <th className="w-16 px-4 py-4 text-center">税率</th>
                 </tr>
               </thead>
               <tbody>
@@ -79,25 +79,25 @@ export default async function SalesDetailPage({
                     key={l.id}
                     className="border-b border-border-light text-[14px] last:border-b-0"
                   >
-                    <td className="px-3 py-3 text-center font-mono tabular-nums text-text-secondary">
+                    <td className="px-4 py-4 text-center font-mono tabular-nums text-text-secondary">
                       {l.lineNo}
                     </td>
-                    <td className="px-3 py-3">
+                    <td className="px-4 py-4">
                       <div className="font-bold">{l.productName}</div>
                       <div className="text-[12px] text-text-muted">
                         {l.productCode}
                       </div>
                     </td>
-                    <td className="px-3 py-3 text-right font-mono tabular-nums">
+                    <td className="px-4 py-4 text-right font-mono tabular-nums">
                       {l.quantity.toLocaleString("ja-JP")}
                     </td>
-                    <td className="px-3 py-3 text-right font-mono tabular-nums">
+                    <td className="px-4 py-4 text-right font-mono tabular-nums">
                       {formatYen(l.unitPrice)}
                     </td>
-                    <td className="px-3 py-3 text-right font-mono tabular-nums font-semibold">
+                    <td className="px-4 py-4 text-right font-mono tabular-nums font-semibold">
                       {formatYen(l.amount)}
                     </td>
-                    <td className="px-3 py-3 text-center text-[13px]">
+                    <td className="px-4 py-4 text-center text-[13px]">
                       {(l.taxRate * 100).toFixed(0)}%
                     </td>
                   </tr>

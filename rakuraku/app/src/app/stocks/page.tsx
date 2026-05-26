@@ -35,7 +35,7 @@ export default async function StocksPage({
     <>
       <TopHeader />
       <PageBar title="在庫を見る" />
-      <main className="mx-auto w-full max-w-[1280px] px-8 py-8">
+      <main className="mx-auto w-full max-w-[1280px] px-10 py-10">
         <StocksView
           summary={summary}
           lots={lots}

@@ -47,7 +47,7 @@ export default async function OrdersPage({
     <>
       <TopHeader />
       <PageBar title="注文を見る" />
-      <main className="mx-auto w-full max-w-[1280px] px-8 py-8">
+      <main className="mx-auto w-full max-w-[1280px] px-10 py-10">
         <OrdersTable
           rows={rows}
           total={total}

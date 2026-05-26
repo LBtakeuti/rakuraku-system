@@ -18,8 +18,8 @@ export default function HomePage() {
   return (
     <>
       <TopHeader />
-      <main className="mx-auto w-full max-w-[1200px] px-8 py-14">
-        <div className="mb-14 text-center">
+      <main className="mx-auto w-full max-w-[1200px] px-10 py-14">
+        <div className="mb-16 text-center">
           <div className="mb-3 text-[32px] font-bold text-text-primary">
             こんにちは、山田さん
           </div>
@@ -28,7 +28,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 min-[601px]:grid-cols-2 min-[601px]:gap-5 min-[761px]:grid-cols-3 min-[1101px]:grid-cols-5">
+        <div className="grid grid-cols-1 gap-5 min-[601px]:grid-cols-2 min-[601px]:gap-6 min-[761px]:grid-cols-3 min-[1101px]:grid-cols-5">
           {/* 上段: 日々の作業 + 確認 */}
           <BigButton
             href="/orders/new"

@@ -29,7 +29,7 @@ export default async function CustomerEditPage({
         title={`お客様を編集する：${customer.name}`}
         backTo="/customers"
       />
-      <main className="mx-auto w-full max-w-[920px] px-8 py-8">
+      <main className="mx-auto w-full max-w-[920px] px-10 py-10">
         <CustomerForm
           mode="edit"
           initial={customer}

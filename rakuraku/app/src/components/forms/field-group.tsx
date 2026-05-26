@@ -25,7 +25,7 @@ export function FieldGroup({
   children,
 }: FieldGroupProps) {
   return (
-    <div className={cn("mb-6 flex flex-col gap-2", className)}>
+    <div className={cn("mb-8 flex flex-col gap-2", className)}>
       <div className="flex items-center gap-2">
         <label
           htmlFor={htmlFor}

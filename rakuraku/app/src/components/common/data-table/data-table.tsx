@@ -41,7 +41,7 @@ export function DataTable<T>({
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   return (
     <div className="rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
-      <div className="border-b border-border-light px-5 py-3 text-[13px] text-text-secondary">
+      <div className="border-b border-border-light px-5 py-4 text-[13px] text-text-secondary">
         <strong className="font-bold text-text-primary">{total}</strong>{" "}
         {unitLabel}
       </div>
@@ -54,7 +54,7 @@ export function DataTable<T>({
                 <th
                   key={c.key}
                   className={cn(
-                    "px-4 py-3",
+                    "px-4 py-3.5",
                     c.width,
                     c.align === "right" && "text-right",
                     c.align === "center" && "text-center"
@@ -63,7 +63,7 @@ export function DataTable<T>({
                   {c.header}
                 </th>
               ))}
-              {trailing && <th className="px-4 py-3" />}
+              {trailing && <th className="px-4 py-3.5" />}
             </tr>
           </thead>
           <tbody>
@@ -90,7 +90,7 @@ export function DataTable<T>({
                   <td
                     key={c.key}
                     className={cn(
-                      "px-4 py-3",
+                      "px-4 py-4",
                       c.align === "right" && "text-right",
                       c.align === "center" && "text-center"
                     )}
@@ -99,7 +99,7 @@ export function DataTable<T>({
                   </td>
                 ))}
                 {trailing && (
-                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                  <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                     {trailing(r)}
                   </td>
                 )}
@@ -110,7 +110,7 @@ export function DataTable<T>({
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-border-light px-5 py-3 text-[13px] text-text-secondary">
+        <div className="flex items-center justify-between border-t border-border-light px-5 py-4 text-[13px] text-text-secondary">
           <div>
             {page} / {totalPages} ページ
           </div>
