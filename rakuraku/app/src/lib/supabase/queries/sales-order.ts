@@ -1,3 +1,4 @@
+import { escapeSearchTerm } from "@/lib/utils/escape-search";
 import { createClient } from "@/lib/supabase/server";
 import type {
   SalesOrderRow,
@@ -109,7 +110,7 @@ export async function listSalesOrders(
   if (filter.query) {
     const term = filter.query.trim();
     if (term) {
-      q = q.or(`order_no.ilike.%${term}%,customer_code.ilike.%${term}%`);
+      q = q.or(`order_no.ilike.%${escapeSearchTerm(term)}%,customer_code.ilike.%${escapeSearchTerm(term)}%`);
     }
   }
   if (filter.status === "pending") q = q.in("status", ["pending", "partial"]);
@@ -208,7 +209,7 @@ export async function searchCustomers(
   const t = term.trim();
   if (t) {
     q = q.or(
-      `name.ilike.%${t}%,name_kana.ilike.%${t}%,customer_code.ilike.%${t}%`
+      `name.ilike.%${escapeSearchTerm(t)}%,name_kana.ilike.%${escapeSearchTerm(t)}%,customer_code.ilike.%${escapeSearchTerm(t)}%`
     );
   }
   const { data, error } = await q;
@@ -256,7 +257,7 @@ export async function searchProductsForOrder(
     .limit(limit);
   const t = term.trim();
   if (t) {
-    q = q.or(`name.ilike.%${t}%,product_code.ilike.%${t}%,jan_code.ilike.%${t}%`);
+    q = q.or(`name.ilike.%${escapeSearchTerm(t)}%,product_code.ilike.%${escapeSearchTerm(t)}%,jan_code.ilike.%${escapeSearchTerm(t)}%`);
   }
   const { data, error } = await q;
   if (error) throw error;

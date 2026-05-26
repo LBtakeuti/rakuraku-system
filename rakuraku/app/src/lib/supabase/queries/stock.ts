@@ -1,3 +1,4 @@
+import { escapeSearchTerm } from "@/lib/utils/escape-search";
 import { createClient } from "@/lib/supabase/server";
 import type {
   ProductStockSummary,
@@ -62,7 +63,7 @@ export async function listStockByProduct(
     );
   const term = filter.query?.trim() ?? "";
   if (term) {
-    q = q.or(`product_code.ilike.%${term}%,lot_no.ilike.%${term}%`);
+    q = q.or(`product_code.ilike.%${escapeSearchTerm(term)}%,lot_no.ilike.%${escapeSearchTerm(term)}%`);
   }
   const { data, error } = await q;
   if (error) throw error;
@@ -137,7 +138,7 @@ export async function listStockByLot(
     );
   const term = filter.query?.trim() ?? "";
   if (term) {
-    q = q.or(`product_code.ilike.%${term}%,lot_no.ilike.%${term}%`);
+    q = q.or(`product_code.ilike.%${escapeSearchTerm(term)}%,lot_no.ilike.%${escapeSearchTerm(term)}%`);
   }
   const { data, error } = await q;
   if (error) throw error;

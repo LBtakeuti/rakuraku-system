@@ -1,3 +1,4 @@
+import { escapeSearchTerm } from "@/lib/utils/escape-search";
 import { createClient } from "@/lib/supabase/server";
 import type { DeliverableOrder } from "@/types/sales-invoice";
 
@@ -41,7 +42,7 @@ export async function listDeliverableOrders(
 
   const term = filter.query?.trim() ?? "";
   if (term) {
-    q = q.or(`order_no.ilike.%${term}%,customer_code.ilike.%${term}%`);
+    q = q.or(`order_no.ilike.%${escapeSearchTerm(term)}%,customer_code.ilike.%${escapeSearchTerm(term)}%`);
   }
 
   const today = new Date();

@@ -1,3 +1,4 @@
+import { escapeSearchTerm } from "@/lib/utils/escape-search";
 import { createClient } from "@/lib/supabase/server";
 import type {
   PurchaseOrderRow,
@@ -116,7 +117,7 @@ export async function listPurchaseOrders(
     const term = filter.query.trim();
     if (term) {
       q = q.or(
-        `purchase_order_no.ilike.%${term}%,supplier_code.ilike.%${term}%`
+        `purchase_order_no.ilike.%${escapeSearchTerm(term)}%,supplier_code.ilike.%${escapeSearchTerm(term)}%`
       );
     }
   }

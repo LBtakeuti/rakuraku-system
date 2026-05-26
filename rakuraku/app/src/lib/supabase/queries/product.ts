@@ -1,3 +1,4 @@
+import { escapeSearchTerm } from "@/lib/utils/escape-search";
 import { createClient } from "@/lib/supabase/server";
 import type { ProductRow, OrderType, TaxRate } from "@/types/product";
 
@@ -71,7 +72,7 @@ export async function listProducts(
     const term = f.query.trim();
     if (term) {
       q = q.or(
-        `name.ilike.%${term}%,product_code.ilike.%${term}%,jan_code.ilike.%${term}%`
+        `name.ilike.%${escapeSearchTerm(term)}%,product_code.ilike.%${escapeSearchTerm(term)}%,jan_code.ilike.%${escapeSearchTerm(term)}%`
       );
     }
   }

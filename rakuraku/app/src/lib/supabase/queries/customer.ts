@@ -1,3 +1,4 @@
+import { escapeSearchTerm } from "@/lib/utils/escape-search";
 import { createClient } from "@/lib/supabase/server";
 import type {
   CustomerRow,
@@ -82,7 +83,7 @@ export async function listCustomers(
     const term = filter.query.trim();
     if (term) {
       q = q.or(
-        `name.ilike.%${term}%,name_kana.ilike.%${term}%,customer_code.ilike.%${term}%`
+        `name.ilike.%${escapeSearchTerm(term)}%,name_kana.ilike.%${escapeSearchTerm(term)}%,customer_code.ilike.%${escapeSearchTerm(term)}%`
       );
     }
   }
