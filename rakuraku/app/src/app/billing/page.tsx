@@ -55,7 +55,7 @@ export default async function BillingPage({
     <>
       <TopHeader />
       <PageBar title="請求の業務" />
-      <main className="mx-auto w-full max-w-[1280px] px-10 py-12">
+      <main className="mx-auto w-full max-w-[1280px] px-8 py-8">
         <ResultBanner
           issued={issued}
           failed={failed}

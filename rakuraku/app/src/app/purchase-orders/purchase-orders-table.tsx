@@ -137,8 +137,8 @@ export function PurchaseOrdersTable({
   ];
 
   return (
-    <div>
-      <div className="mb-8 flex flex-wrap gap-3">
+    <div className="rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <div className="flex flex-wrap items-center gap-3 px-6 py-4">
         <Link
           href="/receivings"
           className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-[15px] font-bold text-white shadow-[0_2px_6px_rgba(15,23,42,0.06)] transition-colors hover:bg-primary-hover"
@@ -148,7 +148,9 @@ export function PurchaseOrdersTable({
         </Link>
       </div>
 
-      <div className="mb-8 rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <div className="border-b border-border-light" />
+
+      <div className="px-6 py-5">
         <div className="mb-4">
           <SearchBar
             initialValue={query}
@@ -173,7 +175,10 @@ export function PurchaseOrdersTable({
         />
       </div>
 
+      <div className="border-b border-border-light" />
+
       <DataTable
+        bare
         rows={rows}
         total={total}
         columns={columns}

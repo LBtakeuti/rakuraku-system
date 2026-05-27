@@ -137,7 +137,8 @@ export function DeliveriesView({ orders, query, range }: DeliveriesViewProps) {
         </div>
       </section>
 
-      <div className="mb-8 rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <div className="rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <div className="px-6 py-5">
         <form onSubmit={onSearch} className="mb-3 flex items-center gap-3">
           <div className="relative flex-1">
             <SearchIcon
@@ -185,8 +186,9 @@ export function DeliveriesView({ orders, query, range }: DeliveriesViewProps) {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
-        <div className="border-b border-border-light px-5 py-3 text-[13px] text-text-secondary">
+      <div className="border-b border-border-light" />
+
+        <div className="border-b border-border-light px-6 py-4 text-[13px] text-text-secondary">
           納品待ちの注文{" "}
           <strong className="font-bold text-text-primary">{orders.length}</strong>{" "}
           件

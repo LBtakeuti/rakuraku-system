@@ -29,7 +29,7 @@ export async function TopHeader() {
   const dateText = formatDateJp(new Date());
 
   return (
-    <header className="flex items-center justify-between gap-4 border-b border-border-light bg-bg-surface px-10 py-6">
+    <header className="flex items-center justify-between gap-4 bg-bg-surface px-10 py-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
       <div className="flex shrink-0 items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-primary text-lg font-bold text-white">
           楽

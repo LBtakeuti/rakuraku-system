@@ -165,7 +165,8 @@ export function SalesView({
         />
       </div>
 
-      <div className="mb-8 rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <div className="rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <div className="px-6 py-5">
         <SearchBar
           initialValue={query}
           placeholder="納品書番号、お客様名で検索..."
@@ -174,7 +175,10 @@ export function SalesView({
         />
       </div>
 
+      <div className="border-b border-border-light" />
+
       <DataTable
+        bare
         rows={rows}
         total={total}
         columns={columns}
@@ -195,6 +199,7 @@ export function SalesView({
           </Link>
         )}
       />
+      </div>
     </div>
   );
 }

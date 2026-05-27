@@ -45,7 +45,7 @@ export default async function SalesPage({
     <>
       <TopHeader />
       <PageBar title="売上を見る" />
-      <main className="mx-auto w-full max-w-[1280px] px-10 py-12">
+      <main className="mx-auto w-full max-w-[1280px] px-8 py-8">
         <ResultBanner
           issued={invoiced}
           failed={failed}

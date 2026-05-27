@@ -25,7 +25,7 @@ export default async function DeliveriesPage({
     <>
       <TopHeader />
       <PageBar title="納品する" />
-      <main className="mx-auto w-full max-w-[1280px] px-10 py-12">
+      <main className="mx-auto w-full max-w-[1280px] px-8 py-8">
         <DeliveriesView orders={orders} query={query} range={range} />
       </main>
     </>

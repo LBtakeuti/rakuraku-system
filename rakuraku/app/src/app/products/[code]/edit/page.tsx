@@ -18,7 +18,7 @@ export default async function ProductEditPage({
     <>
       <TopHeader />
       <PageBar title={`商品を編集する：${product.name}`} backTo="/products" />
-      <main className="mx-auto w-full max-w-[920px] px-10 py-12">
+      <main className="mx-auto w-full max-w-[920px] px-8 py-8">
         <ProductForm mode="edit" initial={product} action={boundAction} />
       </main>
     </>

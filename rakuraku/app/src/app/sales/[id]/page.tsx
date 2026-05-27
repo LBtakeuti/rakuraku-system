@@ -25,7 +25,7 @@ export default async function SalesDetailPage({
     <>
       <TopHeader />
       <PageBar title={`納品書詳細：${inv.invoiceNo}`} backTo="/sales" />
-      <main className="mx-auto w-full max-w-[1100px] px-10 py-12">
+      <main className="mx-auto w-full max-w-[1100px] px-8 py-8">
         <section className="mb-8 rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
           <div className="mb-4 flex items-center gap-3">
             <span className="font-mono tabular-nums text-[22px] font-bold text-text-primary">

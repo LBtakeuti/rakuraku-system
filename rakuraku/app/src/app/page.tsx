@@ -18,7 +18,7 @@ export default function HomePage() {
   return (
     <>
       <TopHeader />
-      <main className="mx-auto w-full max-w-[1200px] px-10 py-14">
+      <main className="mx-auto w-full max-w-[1200px] px-8 py-10">
         <div className="mb-16 text-center">
           <div className="mb-3 text-[32px] font-bold text-text-primary">
             こんにちは、山田さん

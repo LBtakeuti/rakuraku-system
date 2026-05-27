@@ -75,7 +75,7 @@ export function StocksView({
 
   return (
     <div>
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex items-center gap-4 rounded-2xl border border-danger bg-danger-light px-5 py-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-danger text-white">
             <AlertCircle className="h-6 w-6" strokeWidth={2} />
@@ -104,7 +104,8 @@ export function StocksView({
         </div>
       </div>
 
-      <div className="mb-8 rounded-2xl border border-border-light bg-bg-surface p-6 shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <div className="rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+      <div className="px-6 py-5">
         <form onSubmit={onSearch} className="mb-3 flex items-center gap-3">
           <div className="relative flex-1">
             <SearchIcon
@@ -152,7 +153,10 @@ export function StocksView({
         </div>
       </div>
 
-      <div className="mb-6 inline-flex rounded-xl border border-border-default bg-bg-surface p-1">
+      <div className="border-b border-border-light" />
+
+      <div className="px-6 py-4">
+      <div className="inline-flex rounded-xl border border-border-default bg-bg-surface p-1">
         <button
           type="button"
           onClick={() => pushWith({ view: null })}
@@ -178,19 +182,23 @@ export function StocksView({
           ロットごと（詳細）
         </button>
       </div>
+      </div>
+
+      <div className="border-b border-border-light" />
 
       {view === "product" ? (
         <ProductTable rows={summary} />
       ) : (
         <LotTable rows={lots} />
       )}
+      </div>
     </div>
   );
 }
 
 function ProductTable({ rows }: { rows: ProductStockSummary[] }) {
   return (
-    <div className="rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+    <div>
       <div className="border-b border-border-light px-5 py-3 text-[13px] text-text-secondary">
         <strong className="font-bold text-text-primary">{rows.length}</strong>{" "}
         件の商品が在庫管理対象です
@@ -253,7 +261,7 @@ function ProductTable({ rows }: { rows: ProductStockSummary[] }) {
 
 function LotTable({ rows }: { rows: ProductStockLot[] }) {
   return (
-    <div className="rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
+    <div>
       <div className="border-b border-border-light px-5 py-3 text-[13px] text-text-secondary">
         <strong className="font-bold text-text-primary">{rows.length}</strong>{" "}
         件のロットがあります

@@ -23,6 +23,7 @@ type DataTableProps<T> = {
   pageSize: number;
   onPageChange: (page: number) => void;
   trailing?: (row: T) => ReactNode;
+  bare?: boolean;
 };
 
 export function DataTable<T>({
@@ -37,11 +38,18 @@ export function DataTable<T>({
   pageSize,
   onPageChange,
   trailing,
+  bare = false,
 }: DataTableProps<T>) {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   return (
-    <div className="rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]">
-      <div className="border-b border-border-light px-5 py-4 text-[13px] text-text-secondary">
+    <div
+      className={cn(
+        bare
+          ? ""
+          : "rounded-2xl border border-border-light bg-bg-surface shadow-[0_2px_6px_rgba(15,23,42,0.06)]"
+      )}
+    >
+      <div className="border-b border-border-light px-6 py-4 text-[13px] text-text-secondary">
         <strong className="font-bold text-text-primary">{total}</strong>{" "}
         {unitLabel}
       </div>
@@ -54,7 +62,7 @@ export function DataTable<T>({
                 <th
                   key={c.key}
                   className={cn(
-                    "px-4 py-4",
+                    "px-5 py-4",
                     c.width,
                     c.align === "right" && "text-right",
                     c.align === "center" && "text-center"
@@ -63,7 +71,7 @@ export function DataTable<T>({
                   {c.header}
                 </th>
               ))}
-              {trailing && <th className="px-4 py-4" />}
+              {trailing && <th className="px-5 py-4" />}
             </tr>
           </thead>
           <tbody>
@@ -71,7 +79,7 @@ export function DataTable<T>({
               <tr>
                 <td
                   colSpan={columns.length + (trailing ? 1 : 0)}
-                  className="px-4 py-12 text-center text-text-muted"
+                  className="px-5 py-12 text-center text-text-muted"
                 >
                   {emptyMessage}
                 </td>
@@ -90,7 +98,7 @@ export function DataTable<T>({
                   <td
                     key={c.key}
                     className={cn(
-                      "px-4 py-5",
+                      "px-5 py-5",
                       c.align === "right" && "text-right",
                       c.align === "center" && "text-center"
                     )}
@@ -99,7 +107,7 @@ export function DataTable<T>({
                   </td>
                 ))}
                 {trailing && (
-                  <td className="px-4 py-5" onClick={(e) => e.stopPropagation()}>
+                  <td className="px-5 py-5" onClick={(e) => e.stopPropagation()}>
                     {trailing(r)}
                   </td>
                 )}
@@ -110,7 +118,7 @@ export function DataTable<T>({
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-border-light px-5 py-4 text-[13px] text-text-secondary">
+        <div className="flex items-center justify-between border-t border-border-light px-6 py-4 text-[13px] text-text-secondary">
           <div>
             {page} / {totalPages} ページ
           </div>
