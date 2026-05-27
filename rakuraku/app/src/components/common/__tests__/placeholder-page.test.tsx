@@ -1,6 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { PlaceholderPage } from "../placeholder-page";
+
+vi.mock("@/components/common/top-header", () => ({
+  TopHeader: () => <div data-testid="top-header">らくらく受発注システム</div>,
+}));
 
 describe("PlaceholderPage", () => {
   it("title が PageBar に渡る", () => {
